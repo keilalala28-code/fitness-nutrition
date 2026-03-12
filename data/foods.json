@@ -1,0 +1,257 @@
+{
+  "_meta": {
+    "version": "2026.03",
+    "lastUpdated": "2026-03-12",
+    "description": "健身营养食物数据库 - 编辑此文件即可更新食物数据",
+    "dataSource": [
+      "霸王茶姬官方健康计算器",
+      "各品牌官方公示",
+      "中国食物成分表第6版",
+      "ACSM运动营养指南"
+    ]
+  },
+
+  "brands": {
+    "霸王茶姬": {
+      "category": "drink",
+      "updateDate": "2026-03",
+      "products": [
+        {
+          "id": "chagee-boya",
+          "name": "伯牙绝弦（中杯·不加糖）",
+          "servingSize": 500,
+          "servingUnit": "中杯约500ml",
+          "nutrients": { "calories": 26, "protein": 0.56, "carbs": 1.34, "fat": 2.06 },
+          "tags": ["茉莉奶茶", "招牌", "低GI"]
+        },
+        {
+          "id": "chagee-boya-large",
+          "name": "伯牙绝弦（大杯·不加糖）",
+          "servingSize": 660,
+          "servingUnit": "大杯约660ml",
+          "nutrients": { "calories": 26, "protein": 0.56, "carbs": 1.34, "fat": 2.06 },
+          "tags": ["茉莉奶茶", "大杯"]
+        },
+        {
+          "id": "chagee-guifulan",
+          "name": "桂馥兰香（中杯·不加糖）",
+          "servingSize": 500,
+          "servingUnit": "中杯约500ml",
+          "nutrients": { "calories": 28, "protein": 0.6, "carbs": 1.5, "fat": 2.2 },
+          "tags": ["桂花乌龙", "奶茶"]
+        },
+        {
+          "id": "chagee-qingmo",
+          "name": "青沫观音（中杯·不加糖）",
+          "servingSize": 500,
+          "servingUnit": "中杯约500ml",
+          "nutrients": { "calories": 24, "protein": 0.5, "carbs": 1.2, "fat": 1.9 },
+          "tags": ["铁观音", "奶茶"]
+        },
+        {
+          "id": "chagee-wanli",
+          "name": "万里木兰（中杯·不加糖）",
+          "servingSize": 500,
+          "servingUnit": "中杯约500ml",
+          "nutrients": { "calories": 30, "protein": 0.6, "carbs": 1.8, "fat": 2.3 },
+          "tags": ["栀子花", "奶茶"]
+        },
+        {
+          "id": "chagee-chunshan",
+          "name": "春山雾雨（纯茶·不加糖）",
+          "servingSize": 500,
+          "servingUnit": "中杯约500ml",
+          "nutrients": { "calories": 2, "protein": 0.1, "carbs": 0.3, "fat": 0 },
+          "tags": ["纯茶", "无糖", "减脂"]
+        }
+      ]
+    },
+
+    "一点点": {
+      "category": "drink",
+      "updateDate": "2026-03",
+      "products": [
+        {
+          "id": "yidian-four-seasons",
+          "name": "四季奶青",
+          "servingSize": 500,
+          "servingUnit": "一杯约500ml",
+          "nutrients": { "calories": 58, "protein": 1.0, "carbs": 11.5, "fat": 1.2 },
+          "tags": ["奶青", "奶茶"]
+        },
+        {
+          "id": "yidian-boba",
+          "name": "波霸奶茶",
+          "servingSize": 500,
+          "servingUnit": "一杯约500ml",
+          "nutrients": { "calories": 75, "protein": 1.2, "carbs": 16.0, "fat": 1.5 },
+          "tags": ["波霸", "奶茶"]
+        },
+        {
+          "id": "yidian-3bros",
+          "name": "三兄弟",
+          "servingSize": 500,
+          "servingUnit": "一杯约500ml",
+          "nutrients": { "calories": 88, "protein": 1.5, "carbs": 18.5, "fat": 1.8 },
+          "tags": ["珍珠", "布丁", "仙草"]
+        }
+      ]
+    },
+
+    "超模厨房": {
+      "category": "takeout",
+      "updateDate": "2026-03",
+      "products": [
+        {
+          "id": "superbody-chicken-original",
+          "name": "即食鸡胸肉（原味）",
+          "servingSize": 100,
+          "servingUnit": "一袋约100g",
+          "nutrients": { "calories": 110, "protein": 24.0, "carbs": 1.0, "fat": 1.5 },
+          "tags": ["鸡胸肉", "高蛋白", "增肌", "减脂"]
+        },
+        {
+          "id": "superbody-chicken-spicy",
+          "name": "即食鸡胸肉（香辣味）",
+          "servingSize": 100,
+          "servingUnit": "一袋约100g",
+          "nutrients": { "calories": 118, "protein": 23.0, "carbs": 2.5, "fat": 2.0 },
+          "tags": ["鸡胸肉", "香辣", "高蛋白"]
+        },
+        {
+          "id": "superbody-chicken-orleans",
+          "name": "即食鸡胸肉（奥尔良味）",
+          "servingSize": 100,
+          "servingUnit": "一袋约100g",
+          "nutrients": { "calories": 120, "protein": 22.5, "carbs": 3.0, "fat": 2.2 },
+          "tags": ["鸡胸肉", "奥尔良", "高蛋白"]
+        },
+        {
+          "id": "superbody-whole-wheat",
+          "name": "全麦面包",
+          "servingSize": 100,
+          "servingUnit": "100g",
+          "nutrients": { "calories": 245, "protein": 9.0, "carbs": 45.0, "fat": 3.5, "fiber": 6.0 },
+          "tags": ["全麦面包", "粗粮", "低GI"]
+        },
+        {
+          "id": "superbody-konjac-noodle",
+          "name": "魔芋面",
+          "servingSize": 200,
+          "servingUnit": "一袋约200g（24卡）",
+          "nutrients": { "calories": 12, "protein": 0.5, "carbs": 2.5, "fat": 0.1, "fiber": 3.0 },
+          "tags": ["魔芋面", "低卡", "减脂", "代餐"]
+        },
+        {
+          "id": "superbody-protein-bar",
+          "name": "蛋白棒",
+          "servingSize": 60,
+          "servingUnit": "一根约60g（228卡）",
+          "nutrients": { "calories": 380, "protein": 30.0, "carbs": 35.0, "fat": 12.0 },
+          "tags": ["蛋白棒", "高蛋白", "代餐", "增肌"]
+        }
+      ]
+    },
+
+    "优形": {
+      "category": "takeout",
+      "updateDate": "2026-03",
+      "products": [
+        {
+          "id": "youxing-chicken-original",
+          "name": "即食鸡胸肉（原味）",
+          "servingSize": 100,
+          "servingUnit": "一袋约100g",
+          "nutrients": { "calories": 105, "protein": 31.0, "carbs": 1.0, "fat": 1.2 },
+          "tags": ["鸡胸肉", "高蛋白", "增肌"]
+        },
+        {
+          "id": "youxing-chicken-blackpepper",
+          "name": "即食鸡胸肉（黑胡椒味）",
+          "servingSize": 100,
+          "servingUnit": "一袋约100g",
+          "nutrients": { "calories": 110, "protein": 30.0, "carbs": 2.0, "fat": 1.5 },
+          "tags": ["鸡胸肉", "黑胡椒", "高蛋白"]
+        }
+      ]
+    },
+
+    "鲨鱼菲特": {
+      "category": "takeout",
+      "updateDate": "2026-03",
+      "products": [
+        {
+          "id": "sharkfit-chicken-original",
+          "name": "即食鸡胸肉（原味）",
+          "servingSize": 100,
+          "servingUnit": "一袋约100g",
+          "nutrients": { "calories": 108, "protein": 26.0, "carbs": 1.5, "fat": 0.0 },
+          "tags": ["鸡胸肉", "零脂肪", "高蛋白", "减脂"]
+        },
+        {
+          "id": "sharkfit-chicken-spicy",
+          "name": "即食鸡胸肉（香辣味）",
+          "servingSize": 100,
+          "servingUnit": "一袋约100g",
+          "nutrients": { "calories": 112, "protein": 25.0, "carbs": 2.5, "fat": 0.0 },
+          "tags": ["鸡胸肉", "香辣", "零脂肪"]
+        }
+      ]
+    },
+
+    "FOODBOWL超级碗": {
+      "category": "takeout",
+      "updateDate": "2026-03",
+      "products": [
+        {
+          "id": "foodbowl-honey-chicken",
+          "name": "蜜汁鸡腿超级碗",
+          "servingSize": 473,
+          "servingUnit": "一份约473g（651卡）",
+          "nutrients": { "calories": 138, "protein": 12.0, "carbs": 14.0, "fat": 4.5 },
+          "tags": ["轻食", "减脂", "鸡腿"]
+        },
+        {
+          "id": "foodbowl-tuna-egg",
+          "name": "金枪鱼温泉蛋超级碗",
+          "servingSize": 407,
+          "servingUnit": "一份约407g（577卡）",
+          "nutrients": { "calories": 142, "protein": 14.0, "carbs": 12.0, "fat": 5.0 },
+          "tags": ["轻食", "金枪鱼", "减脂"]
+        },
+        {
+          "id": "foodbowl-salmon",
+          "name": "香煎三文鱼超级碗",
+          "servingSize": 420,
+          "servingUnit": "一份约420g",
+          "nutrients": { "calories": 155, "protein": 15.0, "carbs": 10.0, "fat": 7.0 },
+          "tags": ["轻食", "三文鱼", "高蛋白"]
+        }
+      ]
+    }
+  },
+
+  "exercises": {
+    "treadmill": {
+      "updateDate": "2026-03",
+      "items": [
+        {
+          "id": "treadmill-walk-5-10",
+          "name": "跑步机走路 5km/h 坡度10%",
+          "category": "cardio",
+          "met": 7.1,
+          "description": "跑步机中速走，10%坡度",
+          "tags": ["跑步机", "走路", "爬坡", "10%", "高效燃脂"]
+        },
+        {
+          "id": "treadmill-walk-6-15",
+          "name": "跑步机快走 6km/h 坡度15%",
+          "category": "cardio",
+          "met": 12.5,
+          "description": "跑步机快走，15%极限坡度",
+          "tags": ["跑步机", "快走", "爬坡", "15%", "极限", "高强度"]
+        }
+      ]
+    }
+  }
+}
