@@ -2,6 +2,8 @@ import { FoodItem, FoodCategory } from '@/types/nutrition';
 import { CHINESE_FOODS } from './foods-basic';
 import { TAKEOUT_FOODS } from './foods-takeout';
 import { DRINK_FOODS } from './foods-drinks';
+import { SNACK_FOODS } from './foods-snacks';
+import { BAKERY_FOODS } from './foods-bakery';
 import foodsJson from '@/data/foods.json';
 
 // 从JSON加载额外的食物数据
@@ -54,6 +56,8 @@ export const ALL_FOODS: FoodItem[] = [
   ...CHINESE_FOODS,
   ...TAKEOUT_FOODS,
   ...DRINK_FOODS,
+  ...SNACK_FOODS,
+  ...BAKERY_FOODS,
   ...JSON_FOODS,
 ];
 
@@ -71,6 +75,7 @@ export const CATEGORY_NAMES: Record<string, string> = {
   nut: '坚果',
   drink: '饮品',
   snack: '零食',
+  bakery: '烘焙糕点',
   takeout: '外卖菜品',
   restaurant: '餐厅',
   fastfood: '快餐',

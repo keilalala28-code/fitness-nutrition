@@ -37,6 +37,7 @@ export type FoodCategory =
   | 'nut'          // 坚果
   | 'drink'        // 饮品
   | 'snack'        // 零食
+  | 'bakery'       // 烘焙食品
   | 'takeout'      // 外卖
   | 'restaurant'   // 餐厅
   | 'fastfood'     // 快餐
@@ -198,4 +199,44 @@ export interface MealComboRecommendation {
 
 // 推荐来源类型
 export type RecommendationSource = 'inventory' | 'takeout' | 'homemade';
+
+// 菜谱食材
+export interface RecipeIngredient {
+  foodId: string;
+  name: string;           // 食材名称（用于匹配库存）
+  amount: number;         // 用量（克）
+  optional?: boolean;     // 是否可选
+}
+
+// 家常菜谱
+export interface Recipe {
+  id: string;
+  name: string;                     // 菜名
+  difficulty: 'easy' | 'medium' | 'hard';
+  cookingTime: number;              // 烹饪时间（分钟）
+  ingredients: RecipeIngredient[];
+  instructions: string[];           // 步骤
+  nutrients: NutrientData;          // 整道菜的营养（按标准份量）
+  servings: number;                 // 份数
+  mealTypes: MealType[];            // 适合的餐次
+  tags: string[];                   // 标签：清淡、低钠、高蛋白等
+}
+
+// 菜谱匹配结果
+export interface RecipeMatch {
+  recipe: Recipe;
+  matchedIngredients: string[];     // 已有的食材
+  missingIngredients: string[];     // 缺少的食材
+  matchRatio: number;               // 匹配度 0-1
+  status: 'complete' | 'almost' | 'partial';
+}
+
+// 运动推荐
+export interface ExerciseRecommendation {
+  exercise: ExerciseItem;
+  reason: string;
+  suggestedDuration: number;        // 建议时长（分钟）
+  estimatedCalories: number;        // 预计消耗
+  suitability: 'high' | 'medium' | 'low';  // 适合程度
+}
 

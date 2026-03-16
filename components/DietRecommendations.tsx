@@ -1,15 +1,17 @@
 'use client';
 
-import { NutrientData, UserGoals, FoodItem, MealType } from '@/types/nutrition';
-import { getSmartRecommendations } from '@/lib/recommendations';
+import { NutrientData, UserGoals, FoodItem, MealType, UserProfile, RecipeMatch } from '@/types/nutrition';
+import { getSmartRecommendations, getAgePreferences } from '@/lib/recommendations';
 import { CATEGORY_NAMES } from '@/lib/foods';
-import { getUserInventory } from '@/lib/storage';
+import { getUserInventory, getUserProfile } from '@/lib/storage';
+import { getRecipeRecommendations, getMatchStatusLabel, getMatchStatusColor } from '@/lib/recipe-matcher';
 import { useState, useEffect } from 'react';
 
 interface DietRecommendationsProps {
   consumed: NutrientData;
   burned: number;
   goals: UserGoals;
+  userProfile?: UserProfile | null;
 }
 
 const MEAL_LABELS: Record<MealType, string> = {
@@ -25,13 +27,24 @@ const SOURCE_LABELS = {
   homemade: '🏠 自制推荐',
 };
 
-export default function DietRecommendations({ consumed, burned, goals }: DietRecommendationsProps) {
+export default function DietRecommendations({ consumed, burned, goals, userProfile }: DietRecommendationsProps) {
   const [hasInventory, setHasInventory] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [recipeMatches, setRecipeMatches] = useState<RecipeMatch[]>([]);
 
   useEffect(() => {
     const inventory = getUserInventory();
     setHasInventory(inventory.length > 0);
-  }, []);
+
+    const storedProfile = userProfile || getUserProfile();
+    setProfile(storedProfile);
+
+    // 获取可制作的菜谱
+    if (inventory.length > 0) {
+      const matches = getRecipeRecommendations(0.5);
+      setRecipeMatches(matches.slice(0, 3));
+    }
+  }, [userProfile]);
 
   // 计算营养缺口
   const netCalories = consumed.calories - burned;
@@ -45,9 +58,13 @@ export default function DietRecommendations({ consumed, burned, goals }: DietRec
   // 检查是否需要推荐
   const needsRecommendation = deficit.calories > 200 || deficit.protein > 15;
 
-  // 获取智能推荐
+  // 获取年龄偏好
+  const age = profile?.age || 30;
+  const agePreferences = getAgePreferences(age);
+
+  // 获取智能推荐（传入用户档案）
   const recommendations = needsRecommendation
-    ? getSmartRecommendations(deficit, goals.calories)
+    ? getSmartRecommendations(deficit, goals.calories, profile)
     : [];
 
   if (!needsRecommendation) {
@@ -108,6 +125,49 @@ export default function DietRecommendations({ consumed, burned, goals }: DietRec
         <div className="bg-blue-50 rounded-lg p-3 text-sm text-blue-700 flex items-center gap-2">
           <span>📦</span>
           <span>已检测到您的食材库存，优先推荐库存食材</span>
+        </div>
+      )}
+
+      {/* 可制作的菜谱推荐 */}
+      {recipeMatches.length > 0 && (
+        <div className="bg-orange-50 rounded-lg p-4 border border-orange-100">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">🍳</span>
+            <span className="font-medium text-orange-800">可制作的家常菜</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {recipeMatches.map((match) => (
+              <div
+                key={match.recipe.id}
+                className="bg-white rounded-lg px-3 py-2 border border-orange-200 text-sm"
+              >
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs px-1.5 py-0.5 rounded ${getMatchStatusColor(match.status)}`}>
+                    {getMatchStatusLabel(match.status)}
+                  </span>
+                  <span className="font-medium text-gray-800">{match.recipe.name}</span>
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {match.recipe.cookingTime}分钟 · {match.recipe.nutrients.calories}卡 · 蛋白质{match.recipe.nutrients.protein}g
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 中老年人健康饮食建议 */}
+      {age >= 50 && agePreferences.healthTips.length > 0 && (
+        <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-lg">👴</span>
+            <span className="font-medium text-purple-800">健康饮食建议</span>
+          </div>
+          <ul className="text-sm text-purple-700 space-y-1">
+            {agePreferences.healthTips.slice(0, 4).map((tip, idx) => (
+              <li key={idx}>• {tip}</li>
+            ))}
+          </ul>
         </div>
       )}
 
