@@ -214,12 +214,10 @@ export default function Home() {
       )}
 
       {/* 运动推荐 */}
-      {currentUser?.profile && (
-        <ExerciseRecommendations
-          userProfile={currentUser.profile}
-          targetCalories={goals ? Math.max(0, goals.calories - consumed.calories + burned) : undefined}
-        />
-      )}
+      <ExerciseRecommendations
+        userProfile={currentUser?.profile}
+        targetCalories={goals ? Math.max(0, goals.calories - consumed.calories + burned) : undefined}
+      />
 
       {/* 食材库存管理 */}
       <InventoryManager onUpdate={handleInventoryUpdate} />
