@@ -6,6 +6,7 @@ import DailyProgress from '@/components/DailyProgress';
 import FoodSearch from '@/components/FoodSearch';
 import ExerciseSearch from '@/components/ExerciseSearch';
 import DietRecommendations from '@/components/DietRecommendations';
+import ExerciseRecommendations from '@/components/ExerciseRecommendations';
 import UserAccountManager from '@/components/UserAccountManager';
 import InventoryManager from '@/components/InventoryManager';
 import { UserGoals, NutrientData, DiaryEntry, ExerciseEntry, MealType, UserAccount } from '@/types/nutrition';
@@ -209,7 +210,15 @@ export default function Home() {
 
       {/* 饮食建议 */}
       {goals && (
-        <DietRecommendations key={inventoryKey} consumed={consumed} burned={burned} goals={goals} />
+        <DietRecommendations key={inventoryKey} consumed={consumed} burned={burned} goals={goals} userProfile={currentUser?.profile} />
+      )}
+
+      {/* 运动推荐 */}
+      {currentUser?.profile && (
+        <ExerciseRecommendations
+          userProfile={currentUser.profile}
+          targetCalories={goals ? Math.max(0, goals.calories - consumed.calories + burned) : undefined}
+        />
       )}
 
       {/* 食材库存管理 */}
