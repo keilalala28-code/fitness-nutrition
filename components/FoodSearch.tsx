@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { FoodItem, MealType, NutrientData } from '@/types/nutrition';
 import { searchFoods, CATEGORY_NAMES } from '@/lib/foods';
 import { addDiaryEntry, getTodayDateString } from '@/lib/storage';
+import { useToast } from '@/components/Toast';
 
 interface FoodSearchProps {
   onFoodAdded?: () => void;
@@ -24,65 +25,64 @@ const HOT_SEARCHES = [
 ];
 
 export default function FoodSearch({ onFoodAdded }: FoodSearchProps) {
+  const { showToast } = useToast();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<FoodItem[]>([]);
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [grams, setGrams] = useState<number>(100);
   const [mealType, setMealType] = useState<MealType>('lunch');
 
-  const handleSearch = (searchQuery: string) => {
+  // 缓存搜索结果，仅在 query 变化时重新计算
+  const results = useMemo(() => {
+    if (query.trim().length === 0) return [];
+    return searchFoods(query).slice(0, 30);
+  }, [query]);
+
+  const handleSearch = useCallback((searchQuery: string) => {
     setQuery(searchQuery);
-    if (searchQuery.trim().length > 0) {
-      const foods = searchFoods(searchQuery);
-      setResults(foods.slice(0, 30)); // 限制显示30条
-    } else {
-      setResults([]);
-    }
-  };
+    setSelectedFood(null);
+  }, []);
 
-  const handleSelectFood = (food: FoodItem) => {
+  const handleSelectFood = useCallback((food: FoodItem) => {
     setSelectedFood(food);
-    setGrams(food.servingSize); // 默认使用推荐份量
-  };
+    setGrams(food.servingSize);
+  }, []);
 
-  // 根据克数计算营养素
-  const calculateNutrients = (food: FoodItem, grams: number): NutrientData => {
+  // 根据克数计算营养素（useMemo 避免重复计算）
+  const calculatedNutrients = useMemo((): NutrientData | null => {
+    if (!selectedFood) return null;
     const ratio = grams / 100;
     return {
-      calories: Math.round(food.nutrients.calories * ratio),
-      protein: Math.round(food.nutrients.protein * ratio * 10) / 10,
-      carbs: Math.round(food.nutrients.carbs * ratio * 10) / 10,
-      fat: Math.round(food.nutrients.fat * ratio * 10) / 10,
-      fiber: food.nutrients.fiber ? Math.round(food.nutrients.fiber * ratio * 10) / 10 : undefined,
-      sugar: food.nutrients.sugar ? Math.round(food.nutrients.sugar * ratio * 10) / 10 : undefined,
-      sodium: food.nutrients.sodium ? Math.round(food.nutrients.sodium * ratio) : undefined,
+      calories: Math.round(selectedFood.nutrients.calories * ratio),
+      protein: Math.round(selectedFood.nutrients.protein * ratio * 10) / 10,
+      carbs: Math.round(selectedFood.nutrients.carbs * ratio * 10) / 10,
+      fat: Math.round(selectedFood.nutrients.fat * ratio * 10) / 10,
+      fiber: selectedFood.nutrients.fiber ? Math.round(selectedFood.nutrients.fiber * ratio * 10) / 10 : undefined,
+      sugar: selectedFood.nutrients.sugar ? Math.round(selectedFood.nutrients.sugar * ratio * 10) / 10 : undefined,
+      sodium: selectedFood.nutrients.sodium ? Math.round(selectedFood.nutrients.sodium * ratio) : undefined,
     };
-  };
+  }, [selectedFood, grams]);
 
-  const handleAddFood = () => {
-    if (!selectedFood) return;
-
-    const nutrients = calculateNutrients(selectedFood, grams);
+  const handleAddFood = useCallback(() => {
+    if (!selectedFood || !calculatedNutrients) return;
 
     addDiaryEntry({
       date: getTodayDateString(),
       foodId: selectedFood.id,
       foodName: selectedFood.name + (selectedFood.brand ? ` (${selectedFood.brand})` : ''),
       grams,
-      nutrients,
+      nutrients: calculatedNutrients,
       mealType,
     });
+
+    showToast(`已添加 ${selectedFood.name} 到今日饮食`, 'success');
 
     // 重置状态
     setSelectedFood(null);
     setGrams(100);
-    setResults([]);
     setQuery('');
 
     onFoodAdded?.();
-  };
-
-  const calculatedNutrients = selectedFood ? calculateNutrients(selectedFood, grams) : null;
+  }, [selectedFood, calculatedNutrients, grams, mealType, onFoodAdded, showToast]);
 
   return (
     <div className="space-y-4">

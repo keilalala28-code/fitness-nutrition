@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ExerciseItem } from '@/types/nutrition';
 import { EXERCISES, EXERCISE_CATEGORY_NAMES, calculateCaloriesBurned } from '@/lib/exercises';
 import { addExerciseEntry, getTodayDateString, getUserProfile } from '@/lib/storage';
+import { useToast } from '@/components/Toast';
 
 interface ExerciseSearchProps {
   onExerciseAdded?: () => void;
@@ -15,12 +16,20 @@ const HOT_EXERCISES = [
   '游泳', '动感单车', 'HIIT', '深蹲'
 ];
 
+// 运动强度选项
+const INTENSITY_OPTIONS = [
+  { value: 0.8, label: '轻松', desc: '比标准强度低，气不喘' },
+  { value: 1.0, label: '正常', desc: '标准强度' },
+  { value: 1.2, label: '激烈', desc: '比标准强度高，大量出汗' },
+];
+
 export default function ExerciseSearch({ onExerciseAdded }: ExerciseSearchProps) {
+  const { showToast } = useToast();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<ExerciseItem[]>([]);
   const [selectedExercise, setSelectedExercise] = useState<ExerciseItem | null>(null);
   const [duration, setDuration] = useState<number>(30);
   const [userWeight, setUserWeight] = useState<number>(70);
+  const [intensity, setIntensity] = useState<number>(1.0);
 
   // 获取用户体重
   useEffect(() => {
@@ -30,66 +39,61 @@ export default function ExerciseSearch({ onExerciseAdded }: ExerciseSearchProps)
     }
   }, []);
 
-  const searchExercises = (searchQuery: string): ExerciseItem[] => {
-    if (!searchQuery.trim()) return [];
-
-    const term = searchQuery.toLowerCase();
+  // 缓存搜索结果
+  const results = useMemo((): ExerciseItem[] => {
+    if (!query.trim()) return [];
+    const term = query.toLowerCase();
     return EXERCISES.filter(ex =>
       ex.name.toLowerCase().includes(term) ||
       ex.tags.some(tag => tag.toLowerCase().includes(term)) ||
       ex.description.toLowerCase().includes(term)
     ).slice(0, 20);
-  };
+  }, [query]);
 
-  const handleSearch = (searchQuery: string) => {
+  // 缓存分组数据（仅计算一次）
+  const groupedExercises = useMemo(() => EXERCISES.reduce((acc, ex) => {
+    if (!acc[ex.category]) acc[ex.category] = [];
+    acc[ex.category].push(ex);
+    return acc;
+  }, {} as Record<string, ExerciseItem[]>), []);
+
+  const handleSearch = useCallback((searchQuery: string) => {
     setQuery(searchQuery);
-    setResults(searchExercises(searchQuery));
-  };
+    setSelectedExercise(null);
+  }, []);
 
-  const handleSelectExercise = (exercise: ExerciseItem) => {
+  const handleSelectExercise = useCallback((exercise: ExerciseItem) => {
     setSelectedExercise(exercise);
-    setDuration(30); // 默认30分钟
-  };
+    setDuration(30);
+  }, []);
 
-  const handleAddExercise = () => {
+  // 缓存消耗热量计算（含强度系数）
+  const calculatedCalories = useMemo(() => {
+    if (!selectedExercise) return 0;
+    return Math.round(calculateCaloriesBurned(selectedExercise.met, userWeight, duration) * intensity);
+  }, [selectedExercise, userWeight, duration, intensity]);
+
+  const handleAddExercise = useCallback(() => {
     if (!selectedExercise) return;
-
-    const caloriesBurned = calculateCaloriesBurned(
-      selectedExercise.met,
-      userWeight,
-      duration
-    );
 
     addExerciseEntry({
       date: getTodayDateString(),
       exerciseId: selectedExercise.id,
-      exerciseName: selectedExercise.name,
+      exerciseName: selectedExercise.name + (intensity !== 1.0 ? `（${INTENSITY_OPTIONS.find(o => o.value === intensity)?.label}强度）` : ''),
       duration,
-      caloriesBurned,
+      caloriesBurned: calculatedCalories,
     });
+
+    showToast(`已添加 ${selectedExercise.name} 到今日运动`, 'success');
 
     // 重置状态
     setSelectedExercise(null);
     setDuration(30);
-    setResults([]);
+    setIntensity(1.0);
     setQuery('');
 
     onExerciseAdded?.();
-  };
-
-  // 计算消耗的热量
-  const calculatedCalories = selectedExercise
-    ? calculateCaloriesBurned(selectedExercise.met, userWeight, duration)
-    : 0;
-
-  // 按分类分组显示
-  const groupedExercises = EXERCISES.reduce((acc, ex) => {
-    if (!acc[ex.category]) {
-      acc[ex.category] = [];
-    }
-    acc[ex.category].push(ex);
-    return acc;
-  }, {} as Record<string, ExerciseItem[]>);
+  }, [selectedExercise, duration, calculatedCalories, intensity, onExerciseAdded, showToast]);
 
   return (
     <div className="space-y-4">
@@ -204,6 +208,32 @@ export default function ExerciseSearch({ onExerciseAdded }: ExerciseSearchProps)
             </div>
           </div>
 
+          {/* 运动强度 */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              运动强度
+            </label>
+            <div className="flex gap-2">
+              {INTENSITY_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setIntensity(opt.value)}
+                  title={opt.desc}
+                  className={`flex-1 py-1.5 text-sm rounded-lg transition-colors ${
+                    intensity === opt.value
+                      ? 'bg-orange-600 text-white'
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-gray-400 mt-1">
+              {INTENSITY_OPTIONS.find(o => o.value === intensity)?.desc}，实际消耗可能有 ±15% 误差
+            </p>
+          </div>
+
           {/* 预计消耗 */}
           <div className="mt-4 p-3 bg-white rounded-lg">
             <p className="text-sm text-gray-600">
@@ -213,7 +243,7 @@ export default function ExerciseSearch({ onExerciseAdded }: ExerciseSearchProps)
               {calculatedCalories} 卡路里
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              计算公式：MET × 体重(kg) × 时间(小时)
+              计算公式：MET × 体重(kg) × 时间(小时) × 强度系数（{intensity}x）
             </p>
           </div>
 
@@ -250,6 +280,7 @@ export default function ExerciseSearch({ onExerciseAdded }: ExerciseSearchProps)
               <p className="text-xs text-gray-400 mt-1">
                 {userWeight}kg×30分钟 ≈ {calculateCaloriesBurned(exercise.met, userWeight, 30)}卡
               </p>
+
             </button>
           ))}
         </div>

@@ -470,6 +470,58 @@ export function getTodayCompletedMeals(): MealType[] {
   return Array.from(mealTypes);
 }
 
+// ==================== 数据备份与恢复 ====================
+
+/**
+ * 导出所有数据为 JSON 字符串，供用户下载备份
+ */
+export function exportAllData(): string {
+  if (!isBrowser()) return '{}';
+
+  const data: Record<string, unknown> = {};
+  for (const storageKey of Object.values(STORAGE_KEYS)) {
+    const value = localStorage.getItem(storageKey);
+    if (value) {
+      try {
+        data[storageKey] = JSON.parse(value);
+      } catch {
+        data[storageKey] = value;
+      }
+    }
+  }
+
+  return JSON.stringify({
+    version: '1.0',
+    exportedAt: new Date().toISOString(),
+    data,
+  }, null, 2);
+}
+
+/**
+ * 从 JSON 字符串导入数据（覆盖当前数据）
+ */
+export function importAllData(jsonString: string): { success: boolean; error?: string } {
+  if (!isBrowser()) return { success: false, error: '仅支持浏览器环境' };
+
+  try {
+    const parsed = JSON.parse(jsonString);
+    if (!parsed.data || typeof parsed.data !== 'object') {
+      return { success: false, error: '无效的备份文件格式，请确认文件来自本系统' };
+    }
+
+    const validKeys = new Set(Object.values(STORAGE_KEYS));
+    for (const [key, value] of Object.entries(parsed.data)) {
+      if (validKeys.has(key)) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    }
+
+    return { success: true };
+  } catch {
+    return { success: false, error: '文件解析失败，请确认文件未损坏' };
+  }
+}
+
 /**
  * 获取今日剩余需要的餐次
  */

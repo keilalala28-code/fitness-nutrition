@@ -1,11 +1,22 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import './globals.css';
 import { getDataVersion } from '@/lib/foods';
+import Providers from '@/components/Providers';
 
 export const metadata: Metadata = {
   title: '健身营养计算器',
   description: '面向健身人群的每日营养摄入计算与追踪工具',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: '健身营养计算器',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#16a34a',
 };
 
 export default function RootLayout({
@@ -18,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className="min-h-screen bg-gray-50">
+      <Providers>
         {/* 导航栏 */}
         <nav className="bg-white shadow-sm border-b border-gray-200">
           <div className="max-w-6xl mx-auto px-4">
@@ -70,6 +82,7 @@ export default function RootLayout({
             </p>
           </div>
         </footer>
+      </Providers>
       </body>
     </html>
   );

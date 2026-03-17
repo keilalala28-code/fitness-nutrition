@@ -9,6 +9,9 @@ import DietRecommendations from '@/components/DietRecommendations';
 import ExerciseRecommendations from '@/components/ExerciseRecommendations';
 import UserAccountManager from '@/components/UserAccountManager';
 import InventoryManager from '@/components/InventoryManager';
+import DataManager from '@/components/DataManager';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { useToast } from '@/components/Toast';
 import { UserGoals, NutrientData, DiaryEntry, ExerciseEntry, MealType, UserAccount } from '@/types/nutrition';
 import {
   getUserGoals,
@@ -28,7 +31,14 @@ const MEAL_LABELS: Record<MealType, string> = {
   snack: '🍎 加餐',
 };
 
+interface PendingDelete {
+  id: string;
+  type: 'food' | 'exercise';
+  message: string;
+}
+
 export default function Home() {
+  const { showToast } = useToast();
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [goals, setGoals] = useState<UserGoals | null>(null);
   const [todayEntries, setTodayEntries] = useState<DiaryEntry[]>([]);
@@ -42,6 +52,7 @@ export default function Home() {
   const [burned, setBurned] = useState(0);
   const [activeTab, setActiveTab] = useState<'food' | 'exercise'>('food');
   const [inventoryKey, setInventoryKey] = useState(0);
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
 
   const loadData = () => {
     // 优先使用当前用户的目标，否则使用旧系统的目标
@@ -86,17 +97,24 @@ export default function Home() {
   }, []);
 
   const handleDeleteEntry = (id: string) => {
-    if (confirm('确定要删除这条记录吗？')) {
-      deleteDiaryEntry(id);
-      loadData();
-    }
+    setPendingDelete({ id, type: 'food', message: '确定要删除这条饮食记录吗？' });
   };
 
   const handleDeleteExercise = (id: string) => {
-    if (confirm('确定要删除这条运动记录吗？')) {
-      deleteExerciseEntry(id);
-      loadData();
+    setPendingDelete({ id, type: 'exercise', message: '确定要删除这条运动记录吗？' });
+  };
+
+  const handleConfirmDelete = () => {
+    if (!pendingDelete) return;
+    if (pendingDelete.type === 'food') {
+      deleteDiaryEntry(pendingDelete.id);
+      showToast('饮食记录已删除', 'success');
+    } else {
+      deleteExerciseEntry(pendingDelete.id);
+      showToast('运动记录已删除', 'success');
     }
+    setPendingDelete(null);
+    loadData();
   };
 
   const handleUserChange = (account: UserAccount | null) => {
@@ -113,6 +131,15 @@ export default function Home() {
 
   return (
     <div className="space-y-6">
+      {/* 确认删除对话框 */}
+      {pendingDelete && (
+        <ConfirmDialog
+          message={pendingDelete.message}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setPendingDelete(null)}
+        />
+      )}
+
       {/* 欢迎区域 */}
       <div className="bg-gradient-to-r from-primary-600 to-primary-500 rounded-2xl p-6 text-white">
         <h1 className="text-2xl font-bold mb-1">健身营养计算器</h1>
@@ -123,6 +150,9 @@ export default function Home() {
 
       {/* 用户账户管理 */}
       <UserAccountManager onUserChange={handleUserChange} />
+
+      {/* 数据备份 */}
+      <DataManager />
 
       {/* 目标进度 + 运动消耗 */}
       {goals ? (
