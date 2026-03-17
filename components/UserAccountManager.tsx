@@ -11,16 +11,20 @@ import {
   updateUserAccount,
 } from '@/lib/storage';
 import { calculateDailyGoals } from '@/lib/formulas';
+import { useToast } from '@/components/Toast';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 interface UserAccountManagerProps {
   onUserChange?: (account: UserAccount | null) => void;
 }
 
 export default function UserAccountManager({ onUserChange }: UserAccountManagerProps) {
+  const { showToast } = useToast();
   const [accounts, setAccounts] = useState<UserAccount[]>([]);
   const [currentAccount, setCurrentAccount] = useState<UserAccount | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showAccountList, setShowAccountList] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 
   // 新用户表单
   const [newUser, setNewUser] = useState({
@@ -48,7 +52,7 @@ export default function UserAccountManager({ onUserChange }: UserAccountManagerP
 
   const handleCreateAccount = () => {
     if (!newUser.name || !newUser.age || !newUser.height || !newUser.weight) {
-      alert('请填写完整信息');
+      showToast('请填写完整信息', 'error');
       return;
     }
 
@@ -77,6 +81,7 @@ export default function UserAccountManager({ onUserChange }: UserAccountManagerP
       goal: 'maintain',
     });
     setShowCreateForm(false);
+    showToast(`用户 ${newUser.name} 创建成功`, 'success');
     loadAccounts();
   };
 
@@ -87,14 +92,26 @@ export default function UserAccountManager({ onUserChange }: UserAccountManagerP
   };
 
   const handleDeleteAccount = (userId: number) => {
-    if (confirm('确定要删除此用户吗？所有数据将被清除。')) {
-      deleteUserAccount(userId);
-      loadAccounts();
-    }
+    setPendingDeleteId(userId);
+  };
+
+  const handleConfirmDelete = () => {
+    if (pendingDeleteId === null) return;
+    deleteUserAccount(pendingDeleteId);
+    setPendingDeleteId(null);
+    showToast('用户已删除', 'success');
+    loadAccounts();
   };
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-4">
+      {pendingDeleteId !== null && (
+        <ConfirmDialog
+          message="确定要删除此用户吗？所有数据将被清除。"
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setPendingDeleteId(null)}
+        />
+      )}
       {/* 当前用户信息 */}
       {currentAccount ? (
         <div className="flex items-center justify-between">

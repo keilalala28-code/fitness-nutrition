@@ -1,7 +1,7 @@
 {
-  "name": "健身营养计算器",
-  "short_name": "营养计算",
-  "description": "面向健身人群的每日营养摄入计算与追踪工具",
+  "name": "健康管理",
+  "short_name": "健康管理",
+  "description": "科学记录每日营养摄入与运动消耗，助您实现健康目标",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f9fafb",
@@ -9,34 +9,16 @@
   "lang": "zh-CN",
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ],
   "categories": ["health", "fitness"],
   "shortcuts": [
-    {
-      "name": "添加今日饮食",
-      "url": "/",
-      "description": "快速记录今日饮食"
-    },
-    {
-      "name": "TDEE 计算",
-      "url": "/calculator",
-      "description": "计算每日能量消耗"
-    },
-    {
-      "name": "饮食日志",
-      "url": "/diary",
-      "description": "查看历史记录"
-    }
+    { "name": "今日记录", "url": "/", "description": "记录今日饮食" },
+    { "name": "TDEE计算", "url": "/calculator", "description": "计算每日消耗" },
+    { "name": "饮食日志", "url": "/diary", "description": "查看历史记录" }
   ]
 }

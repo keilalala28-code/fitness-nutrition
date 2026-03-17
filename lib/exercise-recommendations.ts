@@ -330,8 +330,20 @@ function getDefaultRecommendations(limit: number): ExerciseRecommendation[] {
   const defaultWeight = 65;
   const defaultDuration = 30;
 
-  return EXERCISES
-    .filter(e => e.met >= 3 && e.met <= 8)
+  // 确保有运动数据可用
+  if (!EXERCISES || EXERCISES.length === 0) {
+    console.warn('EXERCISES array is empty or undefined');
+    return [];
+  }
+
+  const filtered = EXERCISES.filter(e => e.met >= 3 && e.met <= 8);
+
+  // 如果过滤后没有数据，使用更宽松的范围
+  const exercisesToUse = filtered.length > 0
+    ? filtered
+    : EXERCISES.filter(e => e.met >= 2 && e.met <= 10);
+
+  return exercisesToUse
     .slice(0, limit)
     .map(exercise => ({
       exercise,

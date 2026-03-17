@@ -114,9 +114,17 @@ export default function ExerciseRecommendations({
       </div>
 
       {recommendations.length === 0 && (
-        <p className="text-center text-gray-500 py-4">
-          暂无适合的运动推荐，请调整筛选条件
-        </p>
+        <div className="text-center py-4">
+          {!profile ? (
+            <p className="text-gray-500">
+              创建用户档案后，将根据您的身体参数和目标推荐合适的运动
+            </p>
+          ) : (
+            <p className="text-gray-500">
+              暂无适合的运动推荐，请调整筛选条件
+            </p>
+          )}
+        </div>
       )}
 
       {/* 目标消耗提示 */}

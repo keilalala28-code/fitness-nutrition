@@ -1,8 +1,11 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import TDEECalculator from '@/components/TDEECalculator';
 
 export default function CalculatorPage() {
+  const router = useRouter();
+
   return (
     <div className="space-y-6">
       <div>
@@ -12,7 +15,9 @@ export default function CalculatorPage() {
         </p>
       </div>
 
-      <TDEECalculator />
+      <TDEECalculator onGoalsCalculated={() => {
+        setTimeout(() => router.push('/'), 1200);
+      }} />
 
       {/* 科学说明 */}
       <div className="bg-white rounded-xl shadow-sm p-6">

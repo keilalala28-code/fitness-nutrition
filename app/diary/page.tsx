@@ -7,9 +7,14 @@ import {
   getAllExerciseEntries,
   deleteDiaryEntry,
   deleteExerciseEntry,
-  formatDate
+  formatDate,
+  getUserGoals,
+  getCurrentUserAccount,
 } from '@/lib/storage';
 import NutritionCard from '@/components/NutritionCard';
+import TrendChart from '@/components/TrendChart';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { useToast } from '@/components/Toast';
 
 const MEAL_LABELS: Record<MealType, string> = {
   breakfast: '🌅 早餐',
@@ -18,33 +23,39 @@ const MEAL_LABELS: Record<MealType, string> = {
   snack: '🍎 加餐',
 };
 
+interface PendingDelete {
+  id: string;
+  type: 'food' | 'exercise';
+  message: string;
+}
+
 export default function DiaryPage() {
+  const { showToast } = useToast();
   const [entriesByDate, setEntriesByDate] = useState<Record<string, DiaryEntry[]>>({});
   const [exercisesByDate, setExercisesByDate] = useState<Record<string, ExerciseEntry[]>>({});
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
+  const [targetCalories, setTargetCalories] = useState<number | undefined>(undefined);
 
   const loadData = () => {
-    // 加载饮食记录
+    const account = getCurrentUserAccount();
+    const goals = account?.goals || getUserGoals();
+    if (goals?.calories) setTargetCalories(goals.calories);
+
     const allEntries = getAllDiaryEntries();
     const groupedEntries: Record<string, DiaryEntry[]> = {};
     allEntries.forEach((entry) => {
-      if (!groupedEntries[entry.date]) {
-        groupedEntries[entry.date] = [];
-      }
+      if (!groupedEntries[entry.date]) groupedEntries[entry.date] = [];
       groupedEntries[entry.date].push(entry);
     });
 
-    // 加载运动记录
     const allExercises = getAllExerciseEntries();
     const groupedExercises: Record<string, ExerciseEntry[]> = {};
     allExercises.forEach((ex) => {
-      if (!groupedExercises[ex.date]) {
-        groupedExercises[ex.date] = [];
-      }
+      if (!groupedExercises[ex.date]) groupedExercises[ex.date] = [];
       groupedExercises[ex.date].push(ex);
     });
 
-    // 合并日期并排序
     const allDates = new Set([
       ...Object.keys(groupedEntries),
       ...Object.keys(groupedExercises)
@@ -53,14 +64,9 @@ export default function DiaryPage() {
 
     const sortedEntries: Record<string, DiaryEntry[]> = {};
     const sortedExercises: Record<string, ExerciseEntry[]> = {};
-
     sortedDates.forEach((date) => {
-      if (groupedEntries[date]) {
-        sortedEntries[date] = groupedEntries[date];
-      }
-      if (groupedExercises[date]) {
-        sortedExercises[date] = groupedExercises[date];
-      }
+      if (groupedEntries[date]) sortedEntries[date] = groupedEntries[date];
+      if (groupedExercises[date]) sortedExercises[date] = groupedExercises[date];
     });
 
     setEntriesByDate(sortedEntries);
@@ -72,17 +78,24 @@ export default function DiaryPage() {
   }, []);
 
   const handleDeleteEntry = (id: string) => {
-    if (confirm('确定要删除这条记录吗？')) {
-      deleteDiaryEntry(id);
-      loadData();
-    }
+    setPendingDelete({ id, type: 'food', message: '确定要删除这条饮食记录吗？' });
   };
 
   const handleDeleteExercise = (id: string) => {
-    if (confirm('确定要删除这条运动记录吗？')) {
-      deleteExerciseEntry(id);
-      loadData();
+    setPendingDelete({ id, type: 'exercise', message: '确定要删除这条运动记录吗？' });
+  };
+
+  const handleConfirmDelete = () => {
+    if (!pendingDelete) return;
+    if (pendingDelete.type === 'food') {
+      deleteDiaryEntry(pendingDelete.id);
+      showToast('饮食记录已删除', 'success');
+    } else {
+      deleteExerciseEntry(pendingDelete.id);
+      showToast('运动记录已删除', 'success');
     }
+    setPendingDelete(null);
+    loadData();
   };
 
   const getDayTotal = (entries: DiaryEntry[]): NutrientData => {
@@ -108,10 +121,20 @@ export default function DiaryPage() {
 
   return (
     <div className="space-y-6">
+      {pendingDelete && (
+        <ConfirmDialog
+          message={pendingDelete.message}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setPendingDelete(null)}
+        />
+      )}
+
       <div>
         <h1 className="text-2xl font-bold text-gray-900">饮食日志</h1>
         <p className="text-gray-600 mt-1">查看和管理您的历史饮食和运动记录</p>
       </div>
+
+      <TrendChart targetCalories={targetCalories} />
 
       {allDates.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-12 text-center">
@@ -130,7 +153,6 @@ export default function DiaryPage() {
 
             return (
               <div key={date} className="bg-white rounded-xl shadow-sm overflow-hidden">
-                {/* 日期标题 */}
                 <button
                   onClick={() => setSelectedDate(isExpanded ? null : date)}
                   className="w-full p-4 flex justify-between items-center hover:bg-gray-50 transition-colors"
@@ -159,13 +181,10 @@ export default function DiaryPage() {
                   </div>
                 </button>
 
-                {/* 展开的详细内容 */}
                 {isExpanded && (
                   <div className="border-t border-gray-100 p-4 space-y-4">
-                    {/* 营养汇总卡片 */}
                     <NutritionCard nutrients={dayTotal} showDetails />
 
-                    {/* 运动记录 */}
                     {exercises.length > 0 && (
                       <div className="bg-orange-50 rounded-lg p-4">
                         <h3 className="font-medium text-orange-800 mb-2">🏃 运动记录</h3>
@@ -180,7 +199,7 @@ export default function DiaryPage() {
                                 <span className="text-orange-600">-{ex.caloriesBurned} 卡</span>
                                 <button
                                   onClick={() => handleDeleteExercise(ex.id)}
-                                  className="text-red-500 hover:text-red-700"
+                                  className="text-gray-400 hover:text-red-500 transition-colors text-xs"
                                 >
                                   删除
                                 </button>
@@ -191,11 +210,9 @@ export default function DiaryPage() {
                       </div>
                     )}
 
-                    {/* 按餐次显示饮食 */}
                     {(['breakfast', 'lunch', 'dinner', 'snack'] as MealType[]).map((mealType) => {
                       const mealEntries = entries.filter((e) => e.mealType === mealType);
                       if (mealEntries.length === 0) return null;
-
                       const mealTotal = mealEntries.reduce((sum, e) => sum + e.nutrients.calories, 0);
 
                       return (
@@ -204,9 +221,7 @@ export default function DiaryPage() {
                             <h3 className="font-medium text-gray-700">
                               {MEAL_LABELS[mealType]}
                             </h3>
-                            <span className="text-sm text-gray-500">
-                              {mealTotal} 卡
-                            </span>
+                            <span className="text-sm text-gray-500">{mealTotal} 卡</span>
                           </div>
                           <div className="space-y-2">
                             {mealEntries.map((entry) => (
@@ -220,12 +235,11 @@ export default function DiaryPage() {
                                 </div>
                                 <div className="flex items-center gap-4">
                                   <span className="text-gray-600">
-                                    {entry.nutrients.calories} 卡 |{' '}
-                                    蛋白质{entry.nutrients.protein}g
+                                    {entry.nutrients.calories} 卡 | 蛋白质{entry.nutrients.protein}g
                                   </span>
                                   <button
                                     onClick={() => handleDeleteEntry(entry.id)}
-                                    className="text-red-500 hover:text-red-700"
+                                    className="text-gray-400 hover:text-red-500 transition-colors text-xs"
                                   >
                                     删除
                                   </button>
