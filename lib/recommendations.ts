@@ -262,31 +262,15 @@ export function getSmartRecommendations(
       }
     }
 
-    // 2. 根据年龄决定推荐顺序
-    if (agePreferences.preferHomemade) {
-      // 中老年人：优先自制餐
-      const homemadeCombo = createHomemadeCombo(mealType, mealCalorieTarget, mealProteinTarget, agePreferences);
-      if (homemadeCombo) {
-        combos.push(homemadeCombo);
-      }
+    const fitnessGoal = profile?.goal || 'maintain';
 
-      // 外卖放后面，且过滤不适合的
-      const takeoutCombo = createTakeoutCombo(mealType, mealCalorieTarget, mealProteinTarget, agePreferences);
-      if (takeoutCombo) {
-        combos.push(takeoutCombo);
-      }
-    } else {
-      // 年轻人：正常顺序
-      const takeoutCombo = createTakeoutCombo(mealType, mealCalorieTarget, mealProteinTarget, agePreferences);
-      if (takeoutCombo) {
-        combos.push(takeoutCombo);
-      }
+    // 2. 根据年龄决定推荐顺序（家常菜始终优先）
+    const homemadeCombo = createHomemadeCombo(mealType, mealCalorieTarget, mealProteinTarget, agePreferences, fitnessGoal);
+    if (homemadeCombo) combos.push(homemadeCombo);
 
-      const homemadeCombo = createHomemadeCombo(mealType, mealCalorieTarget, mealProteinTarget, agePreferences);
-      if (homemadeCombo) {
-        combos.push(homemadeCombo);
-      }
-    }
+    // 外卖作为备选
+    const takeoutCombo = createTakeoutCombo(mealType, mealCalorieTarget, mealProteinTarget, agePreferences);
+    if (takeoutCombo) combos.push(takeoutCombo);
 
     if (combos.length > 0) {
       recommendations.push({
@@ -346,6 +330,80 @@ function createInventoryCombo(
   };
 }
 
+// 用日期生成每日不同的轮换索引（同一天内稳定，每天自动变化）
+function getDailyRotationIndex(mealType: MealType, poolSize: number): number {
+  const today = new Date();
+  const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
+  const mealOffset = { breakfast: 0, lunch: 7, dinner: 17, snack: 29 }[mealType];
+  return (dayOfYear + mealOffset) % poolSize;
+}
+
+// 家常早餐套餐池（每天轮换）
+const BREAKFAST_POOLS: Array<{ name: string; foods: Array<{ id: string; grams: number }> }> = [
+  { name: '鸡蛋 + 全麦面包 + 牛奶', foods: [{ id: 'egg-whole', grams: 100 }, { id: 'bread-whole', grams: 70 }, { id: 'milk-whole', grams: 250 }] },
+  { name: '皮蛋瘦肉粥 + 卤蛋', foods: [{ id: 'hc-congee-pork', grams: 400 }, { id: 'hc-braised-egg', grams: 50 }] },
+  { name: '蒸蛋羹 + 馒头 + 豆浆', foods: [{ id: 'hc-steamed-egg', grams: 150 }, { id: 'mantou', grams: 80 }, { id: 'soymilk', grams: 300 }] },
+  { name: '燕麦粥 + 鸡蛋 + 牛奶', foods: [{ id: 'oatmeal', grams: 40 }, { id: 'egg-whole', grams: 50 }, { id: 'milk-whole', grams: 250 }] },
+  { name: '八宝粥 + 茶叶蛋', foods: [{ id: 'hc-congee-eight-treasure', grams: 300 }, { id: 'hc-braised-egg', grams: 50 }] },
+  { name: '韭菜炒鸡蛋 + 馒头 + 豆浆', foods: [{ id: 'hc-chive-egg', grams: 150 }, { id: 'mantou', grams: 80 }, { id: 'soymilk', grams: 250 }] },
+  { name: '鸡蛋面条汤', foods: [{ id: 'hc-egg-noodle-soup', grams: 400 }] },
+  { name: '番茄炒鸡蛋 + 米饭 + 豆浆', foods: [{ id: 'hc-tomato-egg', grams: 200 }, { id: 'rice-white', grams: 150 }, { id: 'soymilk', grams: 200 }] },
+  { name: '小米粥 + 鸡蛋 + 咸菜', foods: [{ id: 'congee-millet', grams: 300 }, { id: 'egg-whole', grams: 50 }] },
+];
+
+// 午餐/晚餐家常菜池，按目标分类
+const LUNCH_DINNER_POOLS: Record<string, Array<{ name: string; dishId: string; stapleId: string; soupId?: string }>> = {
+  lose: [
+    { name: '清蒸鲈鱼 + 蒜蓉菠菜 + 米饭', dishId: 'hc-steamed-fish', stapleId: 'rice-white', soupId: 'hc-seaweed-egg-soup' },
+    { name: '西兰花炒虾仁 + 米饭 + 番茄蛋花汤', dishId: 'hc-shrimp-broccoli', stapleId: 'rice-white', soupId: 'hc-tomato-egg-soup' },
+    { name: '清炒西兰花 + 红烧豆腐 + 米饭', dishId: 'hc-stir-fried-broccoli', stapleId: 'rice-white', soupId: 'hc-luffa-egg-soup' },
+    { name: '番茄炒鸡蛋 + 蒜蓉炒青菜 + 米饭', dishId: 'hc-tomato-egg', stapleId: 'rice-white' },
+    { name: '苦瓜炒蛋 + 清炒莲藕 + 糙米饭', dishId: 'hc-bitter-melon-egg', stapleId: 'rice-brown' },
+    { name: '蒸蛋羹 + 蒜蓉菠菜 + 玉米', dishId: 'hc-steamed-egg', stapleId: 'corn' },
+    { name: '麻婆豆腐 + 清炒西兰花 + 米饭', dishId: 'hc-mapo-tofu', stapleId: 'rice-white', soupId: 'hc-tofu-spinach' },
+    { name: '凉拌木耳 + 拍黄瓜 + 番茄牛肉面', dishId: 'hc-cold-wood-ear', stapleId: 'hc-beef-noodle' },
+    { name: '手撕包菜 + 肉末蒸蛋 + 米饭', dishId: 'hc-shredded-cabbage', stapleId: 'rice-white' },
+    { name: '豆角炒肉 + 蒜蓉炒青菜 + 米饭', dishId: 'hc-green-bean-pork', stapleId: 'rice-white', soupId: 'hc-seaweed-egg-soup' },
+  ],
+  maintain: [
+    { name: '宫保鸡丁 + 蒜蓉菠菜 + 米饭', dishId: 'hc-kung-pao-chicken', stapleId: 'rice-white', soupId: 'hc-tomato-egg-soup' },
+    { name: '鱼香肉丝 + 清炒西兰花 + 米饭', dishId: 'hc-fish-fragrant-pork', stapleId: 'rice-white' },
+    { name: '青椒炒肉 + 蒜蓉炒青菜 + 米饭', dishId: 'hc-green-pepper-pork', stapleId: 'rice-white', soupId: 'hc-seaweed-egg-soup' },
+    { name: '木须肉 + 手撕包菜 + 米饭', dishId: 'hc-muxu-pork', stapleId: 'rice-white' },
+    { name: '香菇炒肉片 + 清炒莲藕 + 米饭', dishId: 'hc-stir-fried-mushroom', stapleId: 'rice-white', soupId: 'hc-tomato-egg-soup' },
+    { name: '番茄炒鸡蛋 + 红烧豆腐 + 米饭', dishId: 'hc-tomato-egg', stapleId: 'rice-white' },
+    { name: '黄焖鸡 + 蒜蓉炒青菜 + 米饭', dishId: 'hc-braised-chicken', stapleId: 'rice-white' },
+    { name: '地三鲜 + 蒜蓉菠菜 + 米饭', dishId: 'hc-three-fresh', stapleId: 'rice-white', soupId: 'hc-winter-melon-rib-soup' },
+    { name: '醋溜土豆丝 + 麻婆豆腐 + 米饭', dishId: 'hc-potato-shreds', stapleId: 'rice-white' },
+    { name: '芹菜炒肉丝 + 清炒南瓜 + 米饭', dishId: 'hc-celery-stir-pork', stapleId: 'rice-white', soupId: 'hc-luffa-egg-soup' },
+    { name: '西兰花炒虾仁 + 番茄蛋花汤 + 米饭', dishId: 'hc-shrimp-broccoli', stapleId: 'rice-white', soupId: 'hc-tomato-egg-soup' },
+    { name: '韭菜炒鸡蛋 + 醋溜土豆丝 + 馒头', dishId: 'hc-chive-egg', stapleId: 'mantou' },
+  ],
+  gain: [
+    { name: '红烧排骨 + 清炒西兰花 + 米饭', dishId: 'hc-braised-spare-ribs', stapleId: 'rice-white', soupId: 'hc-corn-pork-soup' },
+    { name: '回锅肉 + 手撕包菜 + 米饭', dishId: 'hc-twice-cooked-pork', stapleId: 'rice-white' },
+    { name: '宫保鸡丁 + 蒜蓉菠菜 + 扬州炒饭', dishId: 'hc-kung-pao-chicken', stapleId: 'hc-yangzhou-fried-rice' },
+    { name: '鱼香肉丝 + 豆角炒肉 + 米饭', dishId: 'hc-fish-fragrant-pork', stapleId: 'rice-white' },
+    { name: '土豆炖鸡 + 蒜蓉炒青菜 + 米饭', dishId: 'hc-braised-chicken-potato', stapleId: 'rice-white', soupId: 'hc-corn-pork-soup' },
+    { name: '可乐鸡翅 + 清炒西兰花 + 米饭', dishId: 'hc-cola-wings', stapleId: 'rice-white' },
+    { name: '香菇炒肉片 + 韭菜炒鸡蛋 + 米饭', dishId: 'hc-stir-fried-mushroom', stapleId: 'rice-white', soupId: 'hc-mushroom-chicken-soup' },
+    { name: '红烧肉 + 蒜蓉菠菜 + 米饭', dishId: 'hc-braised-pork', stapleId: 'rice-white' },
+    { name: '粉蒸排骨 + 清炒西兰花 + 米饭', dishId: 'hc-steamed-pork-ribs', stapleId: 'rice-white' },
+    { name: '木须肉 + 红烧豆腐 + 米饭', dishId: 'hc-muxu-pork', stapleId: 'rice-white', soupId: 'hc-lotus-root-pork-soup' },
+  ],
+};
+
+// 加餐池
+const SNACK_POOLS = [
+  [{ id: 'apple', grams: 200 }, { id: 'yogurt-plain', grams: 150 }],
+  [{ id: 'banana', grams: 120 }, { id: 'milk-whole', grams: 200 }],
+  [{ id: 'edamame', grams: 100 }, { id: 'orange', grams: 200 }],
+  [{ id: 'hc-braised-egg', grams: 100 }, { id: 'kiwi', grams: 80 }],
+  [{ id: 'yogurt-greek', grams: 150 }, { id: 'strawberry', grams: 100 }],
+  [{ id: 'peanut', grams: 30 }, { id: 'apple', grams: 200 }],
+  [{ id: 'tofu-firm', grams: 100 }, { id: 'orange', grams: 200 }],
+];
+
 /**
  * 创建外卖套餐组合
  */
@@ -358,40 +416,25 @@ function createTakeoutCombo(
   const items: ComboItem[] = [];
 
   if (mealType === 'snack') {
-    // 加餐推荐轻食（过滤年龄不适合的）
     const snacks = getSnackFoods().filter(f => isFoodSuitableForAge(f, agePreferences));
     const proteinSnack = snacks.find(f => f.nutrients.protein > 10);
     if (proteinSnack) {
       items.push({ food: proteinSnack, grams: proteinSnack.servingSize, source: 'takeout' });
     }
   } else {
-    // 正餐推荐套餐（过滤年龄不适合的，并按适配分数排序）
     const combos = getTakeoutCombos()
-      .filter(f => isFoodSuitableForAge(f, agePreferences))
+      .filter(f =>
+        isFoodSuitableForAge(f, agePreferences) &&
+        // 降低三文鱼等少见食材的优先级
+        !['salmon', 'tuna', 'beef-sirloin'].includes(f.id)
+      )
       .sort((a, b) => calculateAgeSuitabilityScore(b, agePreferences) - calculateAgeSuitabilityScore(a, agePreferences));
 
-    // 找到热量最接近目标的套餐
-    const bestCombo = combos.find(f => {
-      const totalCal = (f.nutrients.calories * f.servingSize) / 100;
-      return totalCal >= targetCalories * 0.7 && totalCal <= targetCalories * 1.3;
-    });
+    const idx = getDailyRotationIndex(mealType, Math.max(combos.length, 1));
+    const bestCombo = combos[idx % combos.length] || combos[0];
 
     if (bestCombo) {
       items.push({ food: bestCombo, grams: bestCombo.servingSize, source: 'takeout' });
-
-      // 如果蛋白质不够，推荐加一个高蛋白小食（也需过滤）
-      const comboProtein = (bestCombo.nutrients.protein * bestCombo.servingSize) / 100;
-      if (comboProtein < targetProtein * 0.8) {
-        const proteinBoost = ALL_FOODS.find(f =>
-          f.nutrients.protein > 20 &&
-          f.servingSize <= 150 &&
-          ['takeout', 'meat'].includes(f.category) &&
-          isFoodSuitableForAge(f, agePreferences)
-        );
-        if (proteinBoost) {
-          items.push({ food: proteinBoost, grams: 100, source: 'takeout' });
-        }
-      }
     }
   }
 
@@ -399,89 +442,87 @@ function createTakeoutCombo(
 
   const totalNutrients = calculateTotalNutrients(items);
   const mainItem = items[0].food;
-
-  // 根据年龄调整推荐理由
-  const reasonSuffix = agePreferences.preferHomemade ? '（建议适量）' : '';
+  const reasonSuffix = agePreferences.preferHomemade ? '（偶尔换换口味）' : '';
 
   return {
-    name: items.length > 1
-      ? `${mainItem.brand || ''}${mainItem.name} + ${items[1].food.name}`
-      : `${mainItem.brand || ''}${mainItem.name}`,
+    name: `${mainItem.brand || ''}${mainItem.name}`,
     items,
     totalNutrients,
-    reason: `推荐${MEAL_NAMES[mealType]}外卖，${CATEGORY_NAMES[mainItem.category] || '轻食'}${reasonSuffix}`,
+    reason: `外卖选择，${CATEGORY_NAMES[mainItem.category] || '快餐'}${reasonSuffix}`,
   };
 }
 
 /**
- * 创建自制餐组合
+ * 创建家常菜组合（每天轮换，多元化推荐）
  */
 function createHomemadeCombo(
   mealType: MealType,
   targetCalories: number,
   targetProtein: number,
-  agePreferences: AgePreferences
+  agePreferences: AgePreferences,
+  fitnessGoal?: string
 ): Combo | null {
   const items: ComboItem[] = [];
 
   if (mealType === 'breakfast') {
-    // 早餐：鸡蛋 + 全麦面包 + 牛奶
-    const egg = ALL_FOODS.find(f => f.name.includes('鸡蛋') && f.category === 'egg');
-    const bread = ALL_FOODS.find(f => f.name.includes('全麦') && f.category === 'grain');
-    const milk = ALL_FOODS.find(f => f.name.includes('牛奶') && f.category === 'dairy');
-
-    if (egg) items.push({ food: egg, grams: 100, source: 'homemade' }); // 2个鸡蛋
-    if (bread) items.push({ food: bread, grams: 60, source: 'homemade' }); // 2片
-    if (milk) items.push({ food: milk, grams: 250, source: 'homemade' });
-  } else if (mealType === 'lunch' || mealType === 'dinner') {
-    // 根据年龄调整推荐
-    if (agePreferences.preferHomemade) {
-      // 中老年人：推荐更清淡的组合
-      const rice = ALL_FOODS.find(f => f.name.includes('米饭') && f.category === 'staple');
-      const fish = ALL_FOODS.find(f => f.category === 'seafood' && f.nutrients.protein > 15);
-      const veggie = ALL_FOODS.find(f => f.name.includes('西兰花') || f.name.includes('青菜') || f.name.includes('菠菜'));
-      const tofu = ALL_FOODS.find(f => f.category === 'bean' && f.name.includes('豆腐'));
-
-      if (rice) items.push({ food: rice, grams: 120, source: 'homemade' }); // 稍少米饭
-      if (fish) items.push({ food: fish, grams: 150, source: 'homemade' }); // 优先鱼类
-      else if (tofu) items.push({ food: tofu, grams: 150, source: 'homemade' }); // 或豆腐
-      if (veggie) items.push({ food: veggie, grams: 200, source: 'homemade' }); // 多蔬菜
-    } else {
-      // 年轻人：米饭 + 鸡胸肉 + 蔬菜
-      const rice = ALL_FOODS.find(f => f.name.includes('米饭') && f.category === 'staple');
-      const chicken = ALL_FOODS.find(f => f.name.includes('鸡胸肉') && !f.brand);
-      const veggie = ALL_FOODS.find(f => f.name.includes('西兰花') || f.name.includes('青菜'));
-
-      if (rice) items.push({ food: rice, grams: 150, source: 'homemade' });
-      if (chicken) items.push({ food: chicken, grams: 150, source: 'homemade' });
-      if (veggie) items.push({ food: veggie, grams: 150, source: 'homemade' });
+    const pool = BREAKFAST_POOLS;
+    const idx = getDailyRotationIndex(mealType, pool.length);
+    const chosen = pool[idx];
+    for (const { id, grams } of chosen.foods) {
+      const food = ALL_FOODS.find(f => f.id === id);
+      if (food) items.push({ food, grams, source: 'homemade' });
     }
-  } else {
-    // 加餐：水果 + 坚果
-    const fruit = ALL_FOODS.find(f => f.name.includes('香蕉') || f.name.includes('苹果'));
-    const nuts = ALL_FOODS.find(f => f.category === 'nut' && f.servingSize <= 30);
-
-    if (fruit) items.push({ food: fruit, grams: fruit.servingSize, source: 'homemade' });
-    // 中老年人少吃坚果（可能不易消化）
-    if (nuts && !agePreferences.preferHomemade) {
-      items.push({ food: nuts, grams: 25, source: 'homemade' });
-    }
+    if (items.length === 0) return null;
+    const totalNutrients = calculateTotalNutrients(items);
+    return {
+      name: `家常早餐：${chosen.name}`,
+      items,
+      totalNutrients,
+      reason: '营养均衡的中式早餐',
+    };
   }
 
+  if (mealType === 'lunch' || mealType === 'dinner') {
+    const goal = fitnessGoal || 'maintain';
+    const pool = LUNCH_DINNER_POOLS[goal] || LUNCH_DINNER_POOLS['maintain'];
+    // 午晚餐用不同的偏移避免推荐同样的菜
+    const offset = mealType === 'dinner' ? Math.floor(pool.length / 2) : 0;
+    const idx = (getDailyRotationIndex(mealType, pool.length) + offset) % pool.length;
+    const chosen = pool[idx];
+
+    const dish = ALL_FOODS.find(f => f.id === chosen.dishId);
+    const staple = ALL_FOODS.find(f => f.id === chosen.stapleId);
+    const soup = chosen.soupId ? ALL_FOODS.find(f => f.id === chosen.soupId) : null;
+
+    if (dish) items.push({ food: dish, grams: dish.servingSize, source: 'homemade' });
+    if (staple) items.push({ food: staple, grams: staple.servingSize, source: 'homemade' });
+    if (soup && items.length < 3) items.push({ food: soup, grams: soup.servingSize, source: 'homemade' });
+
+    if (items.length === 0) return null;
+    const totalNutrients = calculateTotalNutrients(items);
+    return {
+      name: `家常${MEAL_NAMES[mealType]}：${chosen.name}`,
+      items,
+      totalNutrients,
+      reason: agePreferences.preferHomemade ? '清淡家常，易消化，营养均衡' : '地道家常菜，健康美味',
+    };
+  }
+
+  // 加餐
+  const pool = SNACK_POOLS;
+  const idx = getDailyRotationIndex(mealType, pool.length);
+  const chosen = pool[idx];
+  for (const { id, grams } of chosen) {
+    const food = ALL_FOODS.find(f => f.id === id);
+    if (food) items.push({ food, grams, source: 'homemade' });
+  }
   if (items.length === 0) return null;
-
   const totalNutrients = calculateTotalNutrients(items);
-
-  // 根据年龄调整推荐理由
-  const reason = agePreferences.preferHomemade
-    ? '清淡自制，易消化，营养均衡'
-    : '健康自制，营养均衡';
-
   return {
-    name: `自制${MEAL_NAMES[mealType]}：${items.map(i => i.food.name).join(' + ')}`,
+    name: `加餐：${items.map(i => i.food.name).join(' + ')}`,
     items,
     totalNutrients,
-    reason,
+    reason: '补充能量，健康加餐',
   };
 }
 

@@ -4,6 +4,7 @@ import { TAKEOUT_FOODS } from './foods-takeout';
 import { DRINK_FOODS } from './foods-drinks';
 import { SNACK_FOODS } from './foods-snacks';
 import { BAKERY_FOODS } from './foods-bakery';
+import { HOMECOOKING_FOODS } from './foods-homecooking';
 import foodsJson from '@/data/foods.json';
 
 // 从JSON加载额外的食物数据
@@ -54,6 +55,7 @@ const JSON_FOODS = loadFoodsFromJson();
 // 合并所有食物数据（TypeScript文件 + JSON配置）
 export const ALL_FOODS: FoodItem[] = [
   ...CHINESE_FOODS,
+  ...HOMECOOKING_FOODS,
   ...TAKEOUT_FOODS,
   ...DRINK_FOODS,
   ...SNACK_FOODS,
