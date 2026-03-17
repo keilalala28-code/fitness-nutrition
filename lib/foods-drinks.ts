@@ -675,4 +675,280 @@ export const DRINK_FOODS: FoodItem[] = [
     servingUnit: '一份35g蛋白粉+250ml奶',
     tags: ['蛋白粉', '乳清蛋白', '牛奶', '增肌']
   },
+
+  // ==================== 百事可乐系列 ====================
+  {
+    id: 'pepsi-cola',
+    name: '百事可乐',
+    brand: '百事',
+    category: 'drink',
+    nutrients: { calories: 42, protein: 0, carbs: 10.5, fat: 0, sugar: 10.5 },
+    servingSize: 330,
+    servingUnit: '一罐330ml',
+    tags: ['百事', '可乐', '碳酸', '汽水']
+  },
+  {
+    id: 'pepsi-zero',
+    name: '百事可乐无糖',
+    brand: '百事',
+    category: 'drink',
+    nutrients: { calories: 1, protein: 0, carbs: 0.1, fat: 0, sugar: 0 },
+    servingSize: 330,
+    servingUnit: '一罐330ml',
+    tags: ['百事', '无糖可乐', '零卡', '减脂']
+  },
+  {
+    id: 'fanta-orange',
+    name: '芬达橙味',
+    brand: '可口可乐',
+    category: 'drink',
+    nutrients: { calories: 44, protein: 0, carbs: 11.0, fat: 0, sugar: 11.0 },
+    servingSize: 330,
+    servingUnit: '一罐330ml',
+    tags: ['芬达', '橙味', '碳酸', '汽水']
+  },
+
+  // ==================== 凉茶/草本饮料 ====================
+  {
+    id: 'wanglaoji',
+    name: '王老吉凉茶',
+    brand: '王老吉',
+    category: 'drink',
+    nutrients: { calories: 44, protein: 0, carbs: 11.0, fat: 0, sugar: 10.8 },
+    servingSize: 310,
+    servingUnit: '一罐310ml',
+    tags: ['王老吉', '凉茶', '草本', '去火']
+  },
+  {
+    id: 'jiaduobao',
+    name: '加多宝凉茶',
+    brand: '加多宝',
+    category: 'drink',
+    nutrients: { calories: 43, protein: 0, carbs: 10.8, fat: 0, sugar: 10.6 },
+    servingSize: 310,
+    servingUnit: '一罐310ml',
+    tags: ['加多宝', '凉茶', '草本', '去火']
+  },
+
+  // ==================== 茶饮料 ====================
+  {
+    id: 'tongyi-ice-tea',
+    name: '统一冰红茶',
+    brand: '统一',
+    category: 'drink',
+    nutrients: { calories: 38, protein: 0, carbs: 9.5, fat: 0, sugar: 9.0 },
+    servingSize: 500,
+    servingUnit: '一瓶500ml',
+    tags: ['统一', '冰红茶', '茶饮料']
+  },
+  {
+    id: 'kangshifu-ice-tea',
+    name: '康师傅冰红茶',
+    brand: '康师傅',
+    category: 'drink',
+    nutrients: { calories: 36, protein: 0, carbs: 9.0, fat: 0, sugar: 8.5 },
+    servingSize: 500,
+    servingUnit: '一瓶500ml',
+    tags: ['康师傅', '冰红茶', '茶饮料']
+  },
+  {
+    id: 'kangshifu-green-tea',
+    name: '康师傅绿茶（蜂蜜）',
+    brand: '康师傅',
+    category: 'drink',
+    nutrients: { calories: 30, protein: 0, carbs: 7.5, fat: 0, sugar: 7.0 },
+    servingSize: 500,
+    servingUnit: '一瓶500ml',
+    tags: ['康师傅', '绿茶', '蜂蜜', '茶饮料']
+  },
+  {
+    id: 'tongyi-green-tea',
+    name: '统一绿茶（茉莉）',
+    brand: '统一',
+    category: 'drink',
+    nutrients: { calories: 28, protein: 0, carbs: 7.0, fat: 0, sugar: 6.5 },
+    servingSize: 500,
+    servingUnit: '一瓶500ml',
+    tags: ['统一', '绿茶', '茉莉', '茶饮料']
+  },
+
+  // ==================== 果汁饮料 ====================
+  {
+    id: 'minute-maid',
+    name: '美汁源果粒橙',
+    brand: '可口可乐',
+    category: 'drink',
+    nutrients: { calories: 47, protein: 0.4, carbs: 11.5, fat: 0.1, sugar: 10.8 },
+    servingSize: 420,
+    servingUnit: '一瓶420ml',
+    tags: ['果粒橙', '美汁源', '橙汁', '果汁']
+  },
+  {
+    id: 'huiyuan-apple-juice',
+    name: '汇源苹果汁（100%）',
+    brand: '汇源',
+    category: 'drink',
+    nutrients: { calories: 48, protein: 0.2, carbs: 11.8, fat: 0.1, sugar: 11.0 },
+    servingSize: 250,
+    servingUnit: '一盒250ml',
+    tags: ['汇源', '苹果汁', '果汁', '100%果汁']
+  },
+  {
+    id: 'huiyuan-orange-juice',
+    name: '汇源橙汁',
+    brand: '汇源',
+    category: 'drink',
+    nutrients: { calories: 45, protein: 0.3, carbs: 11.0, fat: 0.1, sugar: 10.2 },
+    servingSize: 250,
+    servingUnit: '一盒250ml',
+    tags: ['汇源', '橙汁', '果汁']
+  },
+  {
+    id: 'nongfu-farm',
+    name: '农夫果园（30%果汁）',
+    brand: '农夫山泉',
+    category: 'drink',
+    nutrients: { calories: 46, protein: 0.3, carbs: 11.3, fat: 0.1, sugar: 10.5 },
+    servingSize: 500,
+    servingUnit: '一瓶500ml',
+    tags: ['农夫山泉', '农夫果园', '果汁', '混合果汁']
+  },
+
+  // ==================== 乳品饮料 ====================
+  {
+    id: 'yili-milk',
+    name: '伊利纯牛奶',
+    brand: '伊利',
+    category: 'drink',
+    nutrients: { calories: 66, protein: 3.2, carbs: 4.8, fat: 3.8 },
+    servingSize: 250,
+    servingUnit: '一盒250ml',
+    tags: ['伊利', '牛奶', '纯牛奶', '全脂牛奶']
+  },
+  {
+    id: 'mengniu-milk',
+    name: '蒙牛纯牛奶',
+    brand: '蒙牛',
+    category: 'drink',
+    nutrients: { calories: 65, protein: 3.0, carbs: 4.9, fat: 3.6 },
+    servingSize: 250,
+    servingUnit: '一盒250ml',
+    tags: ['蒙牛', '牛奶', '纯牛奶', '全脂牛奶']
+  },
+  {
+    id: 'wahaha-nutrition',
+    name: '娃哈哈营养快线',
+    brand: '娃哈哈',
+    category: 'drink',
+    nutrients: { calories: 68, protein: 1.2, carbs: 13.5, fat: 1.2, sugar: 12.0 },
+    servingSize: 500,
+    servingUnit: '一瓶500ml',
+    tags: ['娃哈哈', '营养快线', '果奶', '儿童饮料']
+  },
+  {
+    id: 'coconut-juice',
+    name: '椰树椰汁',
+    brand: '椰树',
+    category: 'drink',
+    nutrients: { calories: 37, protein: 0.6, carbs: 7.5, fat: 0.8, sugar: 6.8 },
+    servingSize: 245,
+    servingUnit: '一罐245ml',
+    tags: ['椰树', '椰汁', '椰子汁', '植物蛋白饮料']
+  },
+  {
+    id: 'nongfu-coconut-water',
+    name: '力量帝椰子水',
+    brand: '农夫山泉',
+    category: 'drink',
+    nutrients: { calories: 19, protein: 0.7, carbs: 4.2, fat: 0.1, sugar: 3.8 },
+    servingSize: 500,
+    servingUnit: '一瓶500ml',
+    tags: ['椰子水', '农夫山泉', '天然椰子水', '运动饮料']
+  },
+  {
+    id: 'yakult',
+    name: '养乐多',
+    brand: '养乐多',
+    category: 'drink',
+    nutrients: { calories: 72, protein: 1.0, carbs: 16.2, fat: 0.1, sugar: 15.0 },
+    servingSize: 100,
+    servingUnit: '一瓶100ml',
+    tags: ['养乐多', '乳酸菌', '益生菌', '发酵乳']
+  },
+
+  // ==================== 运动饮料 ====================
+  {
+    id: 'mizone',
+    name: '脉动（水蜜桃）',
+    brand: '达能',
+    category: 'drink',
+    nutrients: { calories: 25, protein: 0, carbs: 6.2, fat: 0, sugar: 6.0 },
+    servingSize: 600,
+    servingUnit: '一瓶600ml',
+    tags: ['脉动', '运动饮料', '低卡', '维他命']
+  },
+  {
+    id: 'gatorade',
+    name: '佳得乐运动饮料（柠檬）',
+    brand: '佳得乐',
+    category: 'drink',
+    nutrients: { calories: 26, protein: 0, carbs: 6.5, fat: 0, sugar: 6.0 },
+    servingSize: 600,
+    servingUnit: '一瓶600ml',
+    tags: ['佳得乐', '运动饮料', '电解质']
+  },
+
+  // ==================== 咖啡饮料 ====================
+  {
+    id: 'nestle-coffee-ready',
+    name: '雀巢即溶咖啡（原味）',
+    brand: '雀巢',
+    category: 'drink',
+    nutrients: { calories: 67, protein: 1.2, carbs: 10.5, fat: 2.5, sugar: 9.5 },
+    servingSize: 200,
+    servingUnit: '一杯约200ml',
+    tags: ['雀巢', '咖啡', '速溶咖啡', '罐装咖啡']
+  },
+  {
+    id: 'nescafe-black',
+    name: '雀巢黑咖啡（无糖）',
+    brand: '雀巢',
+    category: 'drink',
+    nutrients: { calories: 5, protein: 0.5, carbs: 0.5, fat: 0, sugar: 0 },
+    servingSize: 240,
+    servingUnit: '一杯约240ml',
+    tags: ['雀巢', '黑咖啡', '无糖', '减脂', '咖啡']
+  },
+
+  // ==================== 矿泉水/苏打水 ====================
+  {
+    id: 'baisuishan-water',
+    name: '百岁山矿泉水',
+    brand: '百岁山',
+    category: 'drink',
+    nutrients: { calories: 0, protein: 0, carbs: 0, fat: 0, sugar: 0 },
+    servingSize: 570,
+    servingUnit: '一瓶570ml',
+    tags: ['矿泉水', '百岁山', '水', '无糖']
+  },
+  {
+    id: 'nongfu-water',
+    name: '农夫山泉矿泉水',
+    brand: '农夫山泉',
+    category: 'drink',
+    nutrients: { calories: 0, protein: 0, carbs: 0, fat: 0, sugar: 0 },
+    servingSize: 550,
+    servingUnit: '一瓶550ml',
+    tags: ['矿泉水', '农夫山泉', '水', '无糖']
+  },
+  {
+    id: 'ice-dew-water',
+    name: '冰露纯净水',
+    brand: '可口可乐',
+    category: 'drink',
+    nutrients: { calories: 0, protein: 0, carbs: 0, fat: 0, sugar: 0 },
+    servingSize: 550,
+    servingUnit: '一瓶550ml',
+    tags: ['纯净水', '冰露', '水', '无糖']
+  },
 ];

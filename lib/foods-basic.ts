@@ -620,6 +620,339 @@ export const CHINESE_FOODS: FoodItem[] = [
     servingUnit: '一把约100g',
     tags: ['金针菇', '火锅', '菌菇']
   },
+  {
+    id: 'celery',
+    name: '芹菜',
+    category: 'vegetable',
+    nutrients: { calories: 14, protein: 0.8, carbs: 3.0, fat: 0.1, fiber: 1.2 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['芹菜', '西芹', '绿叶菜']
+  },
+  {
+    id: 'chives',
+    name: '韭菜',
+    category: 'vegetable',
+    nutrients: { calories: 26, protein: 2.4, carbs: 4.6, fat: 0.4, fiber: 1.4 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['韭菜', '绿叶菜', '韭菜炒蛋']
+  },
+  {
+    id: 'green-onion',
+    name: '大葱',
+    category: 'vegetable',
+    nutrients: { calories: 30, protein: 1.9, carbs: 6.5, fat: 0.3, fiber: 1.3 },
+    servingSize: 50,
+    servingUnit: '一根约50g',
+    tags: ['大葱', '葱', '调料蔬菜']
+  },
+  {
+    id: 'onion',
+    name: '洋葱',
+    category: 'vegetable',
+    nutrients: { calories: 39, protein: 1.1, carbs: 9.0, fat: 0.1, fiber: 1.7 },
+    servingSize: 150,
+    servingUnit: '一个约150g',
+    tags: ['洋葱', '蔬菜']
+  },
+  {
+    id: 'bitter-melon',
+    name: '苦瓜',
+    category: 'vegetable',
+    nutrients: { calories: 19, protein: 1.0, carbs: 4.3, fat: 0.1, fiber: 1.4 },
+    servingSize: 200,
+    servingUnit: '一根约200g',
+    tags: ['苦瓜', '减脂', '清热']
+  },
+  {
+    id: 'winter-melon',
+    name: '冬瓜',
+    category: 'vegetable',
+    nutrients: { calories: 11, protein: 0.4, carbs: 2.6, fat: 0.2, fiber: 0.7 },
+    servingSize: 200,
+    servingUnit: '200g',
+    tags: ['冬瓜', '减脂', '低热量', '消水肿']
+  },
+  {
+    id: 'loofah',
+    name: '丝瓜',
+    category: 'vegetable',
+    nutrients: { calories: 20, protein: 1.0, carbs: 4.2, fat: 0.2, fiber: 0.6 },
+    servingSize: 200,
+    servingUnit: '一根约200g',
+    tags: ['丝瓜', '蔬菜', '汤']
+  },
+  {
+    id: 'zucchini',
+    name: '西葫芦',
+    category: 'vegetable',
+    nutrients: { calories: 16, protein: 1.1, carbs: 3.0, fat: 0.2, fiber: 1.0 },
+    servingSize: 200,
+    servingUnit: '一根约200g',
+    tags: ['西葫芦', '蔬菜', '低热量']
+  },
+  {
+    id: 'pumpkin',
+    name: '南瓜',
+    category: 'vegetable',
+    nutrients: { calories: 22, protein: 0.7, carbs: 5.3, fat: 0.1, fiber: 0.5 },
+    servingSize: 200,
+    servingUnit: '200g',
+    tags: ['南瓜', '南瓜粥', '蔬菜']
+  },
+  {
+    id: 'lotus-root',
+    name: '莲藕',
+    category: 'vegetable',
+    nutrients: { calories: 70, protein: 1.9, carbs: 16.4, fat: 0.1, fiber: 1.2 },
+    servingSize: 150,
+    servingUnit: '一节约150g',
+    tags: ['莲藕', '藕', '炖汤']
+  },
+  {
+    id: 'white-radish',
+    name: '白萝卜',
+    category: 'vegetable',
+    nutrients: { calories: 21, protein: 0.9, carbs: 4.6, fat: 0.1, fiber: 1.0 },
+    servingSize: 200,
+    servingUnit: '半根约200g',
+    tags: ['白萝卜', '萝卜', '炖汤']
+  },
+  {
+    id: 'chinese-yam',
+    name: '山药',
+    category: 'vegetable',
+    nutrients: { calories: 56, protein: 1.9, carbs: 12.4, fat: 0.2, fiber: 0.8 },
+    servingSize: 150,
+    servingUnit: '150g',
+    tags: ['山药', '淮山', '养胃']
+  },
+  {
+    id: 'taro',
+    name: '芋头',
+    category: 'vegetable',
+    nutrients: { calories: 79, protein: 2.2, carbs: 18.1, fat: 0.2, fiber: 1.0 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['芋头', '芋艿', '主食替代']
+  },
+  {
+    id: 'oyster-mushroom',
+    name: '平菇',
+    category: 'vegetable',
+    nutrients: { calories: 20, protein: 1.9, carbs: 3.6, fat: 0.2, fiber: 2.3 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['平菇', '蘑菇', '菌菇']
+  },
+  {
+    id: 'king-oyster-mushroom',
+    name: '杏鲍菇',
+    category: 'vegetable',
+    nutrients: { calories: 31, protein: 1.3, carbs: 6.6, fat: 0.1, fiber: 2.2 },
+    servingSize: 100,
+    servingUnit: '一个约100g',
+    tags: ['杏鲍菇', '菌菇', '蘑菇']
+  },
+  {
+    id: 'crab-mushroom',
+    name: '蟹味菇',
+    category: 'vegetable',
+    nutrients: { calories: 26, protein: 2.7, carbs: 4.6, fat: 0.3, fiber: 2.0 },
+    servingSize: 100,
+    servingUnit: '一把约100g',
+    tags: ['蟹味菇', '白玉菇', '菌菇', '火锅']
+  },
+  {
+    id: 'black-fungus',
+    name: '黑木耳（泡发）',
+    category: 'vegetable',
+    nutrients: { calories: 21, protein: 1.5, carbs: 3.6, fat: 0.2, fiber: 2.6 },
+    servingSize: 80,
+    servingUnit: '泡发约80g',
+    tags: ['木耳', '黑木耳', '凉拌木耳']
+  },
+  {
+    id: 'white-fungus',
+    name: '银耳（泡发）',
+    category: 'vegetable',
+    nutrients: { calories: 15, protein: 1.4, carbs: 3.1, fat: 0.1, fiber: 2.6 },
+    servingSize: 100,
+    servingUnit: '泡发约100g',
+    tags: ['银耳', '雪耳', '银耳汤']
+  },
+  {
+    id: 'cauliflower',
+    name: '花椰菜/花菜',
+    category: 'vegetable',
+    nutrients: { calories: 24, protein: 1.9, carbs: 5.0, fat: 0.3, fiber: 2.0 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['花菜', '花椰菜', '白花菜', '干锅花菜']
+  },
+  {
+    id: 'purple-cabbage',
+    name: '紫甘蓝',
+    category: 'vegetable',
+    nutrients: { calories: 27, protein: 1.4, carbs: 6.1, fat: 0.2, fiber: 2.1 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['紫甘蓝', '紫包菜', '沙拉']
+  },
+  {
+    id: 'chinese-cabbage',
+    name: '大白菜',
+    category: 'vegetable',
+    nutrients: { calories: 13, protein: 1.5, carbs: 2.1, fat: 0.2, fiber: 0.8 },
+    servingSize: 200,
+    servingUnit: '200g',
+    tags: ['大白菜', '白菜', '炖白菜', '火锅']
+  },
+  {
+    id: 'baby-cabbage',
+    name: '娃娃菜',
+    category: 'vegetable',
+    nutrients: { calories: 12, protein: 1.2, carbs: 2.2, fat: 0.1, fiber: 0.7 },
+    servingSize: 200,
+    servingUnit: '一棵约200g',
+    tags: ['娃娃菜', '白菜', '火锅', '蒸菜']
+  },
+  {
+    id: 'snow-peas',
+    name: '荷兰豆',
+    category: 'vegetable',
+    nutrients: { calories: 42, protein: 2.8, carbs: 7.5, fat: 0.2, fiber: 2.6 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['荷兰豆', '甜豆', '豌豆']
+  },
+  {
+    id: 'cowpea',
+    name: '豇豆/长豆角',
+    category: 'vegetable',
+    nutrients: { calories: 29, protein: 2.7, carbs: 5.8, fat: 0.2, fiber: 1.8 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['豇豆', '豆角', '长豆角', '炒豆角']
+  },
+  {
+    id: 'green-peas',
+    name: '豌豆（嫩）',
+    category: 'vegetable',
+    nutrients: { calories: 73, protein: 5.4, carbs: 13.8, fat: 0.4, fiber: 5.1 },
+    servingSize: 80,
+    servingUnit: '80g（去荚）',
+    tags: ['豌豆', '青豆', '蔬菜']
+  },
+  {
+    id: 'mung-bean-sprout',
+    name: '绿豆芽',
+    category: 'vegetable',
+    nutrients: { calories: 18, protein: 2.1, carbs: 2.9, fat: 0.1, fiber: 0.8 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['绿豆芽', '豆芽', '炒豆芽']
+  },
+  {
+    id: 'soy-sprout',
+    name: '黄豆芽',
+    category: 'vegetable',
+    nutrients: { calories: 44, protein: 4.5, carbs: 4.5, fat: 1.6, fiber: 1.0 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['黄豆芽', '豆芽']
+  },
+  {
+    id: 'asparagus',
+    name: '芦笋',
+    category: 'vegetable',
+    nutrients: { calories: 22, protein: 2.2, carbs: 4.1, fat: 0.1, fiber: 2.1 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['芦笋', '蔬菜', '减脂']
+  },
+  {
+    id: 'bamboo-shoot',
+    name: '竹笋',
+    category: 'vegetable',
+    nutrients: { calories: 19, protein: 2.6, carbs: 3.6, fat: 0.2, fiber: 1.8 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['竹笋', '笋', '冬笋']
+  },
+  {
+    id: 'okra',
+    name: '秋葵',
+    category: 'vegetable',
+    nutrients: { calories: 30, protein: 2.0, carbs: 6.5, fat: 0.1, fiber: 3.2 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['秋葵', '蔬菜', '健康']
+  },
+  {
+    id: 'kelp',
+    name: '海带（泡发）',
+    category: 'vegetable',
+    nutrients: { calories: 12, protein: 1.2, carbs: 2.1, fat: 0.1, fiber: 0.5 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['海带', '昆布', '汤']
+  },
+  {
+    id: 'green-pepper',
+    name: '青椒',
+    category: 'vegetable',
+    nutrients: { calories: 22, protein: 1.0, carbs: 5.2, fat: 0.2, fiber: 1.4 },
+    servingSize: 100,
+    servingUnit: '一个约100g',
+    tags: ['青椒', '辣椒', '炒菜']
+  },
+  {
+    id: 'yellow-chive',
+    name: '韭黄',
+    category: 'vegetable',
+    nutrients: { calories: 22, protein: 2.3, carbs: 3.9, fat: 0.2, fiber: 1.2 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['韭黄', '韭菜', '炒鸡蛋']
+  },
+  {
+    id: 'water-spinach',
+    name: '空心菜',
+    category: 'vegetable',
+    nutrients: { calories: 20, protein: 2.2, carbs: 3.2, fat: 0.3, fiber: 1.4 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['空心菜', '蕹菜', '通菜', '绿叶菜']
+  },
+  {
+    id: 'chrysanthemum-greens',
+    name: '茼蒿',
+    category: 'vegetable',
+    nutrients: { calories: 21, protein: 1.9, carbs: 3.9, fat: 0.3, fiber: 1.2 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['茼蒿', '蓬蒿菜', '绿叶菜', '火锅']
+  },
+  {
+    id: 'romaine',
+    name: '油麦菜',
+    category: 'vegetable',
+    nutrients: { calories: 15, protein: 1.4, carbs: 2.2, fat: 0.3, fiber: 0.6 },
+    servingSize: 100,
+    servingUnit: '100g',
+    tags: ['油麦菜', '绿叶菜', '清炒']
+  },
+  {
+    id: 'coriander',
+    name: '香菜',
+    category: 'vegetable',
+    nutrients: { calories: 23, protein: 2.2, carbs: 3.5, fat: 0.5, fiber: 2.8 },
+    servingSize: 10,
+    servingUnit: '少许约10g',
+    tags: ['香菜', '芫荽', '调料']
+  },
 
   // ==================== 水果类 ====================
   {
