@@ -7,6 +7,7 @@ import FoodSearch from '@/components/FoodSearch';
 import ExerciseSearch from '@/components/ExerciseSearch';
 import DietRecommendations from '@/components/DietRecommendations';
 import ExerciseRecommendations from '@/components/ExerciseRecommendations';
+import DailyExercisePlan from '@/components/DailyExercisePlan';
 import UserAccountManager from '@/components/UserAccountManager';
 import InventoryManager from '@/components/InventoryManager';
 import DataManager from '@/components/DataManager';
@@ -296,6 +297,9 @@ export default function Home() {
           <ExerciseSearch onExerciseAdded={loadData} />
         )}
       </div>
+
+      {/* 今日运动计划 */}
+      <DailyExercisePlan onExerciseAdded={loadData} />
 
       {/* 饮食推荐（可折叠） */}
       {goals && (
