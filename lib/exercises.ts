@@ -863,6 +863,118 @@ export const EXERCISES: ExerciseItem[] = [
     description: '与孩子一起活动',
     tags: ['带娃', '孩子', '日常']
   },
+  {
+    id: 'stroll',
+    name: '饭后散步',
+    category: 'daily',
+    met: 2.5,
+    description: '饭后慢悠悠散步，促消化',
+    tags: ['散步', '饭后', '溜达', '日常', '轻度']
+  },
+  {
+    id: 'walk-leisure',
+    name: '遛弯/休闲散步',
+    category: 'daily',
+    met: 2.8,
+    description: '漫无目的闲逛，轻松散心',
+    tags: ['遛弯', '散步', '溜达', '日常']
+  },
+  {
+    id: 'dog-walk',
+    name: '遛狗',
+    category: 'daily',
+    met: 3.0,
+    description: '带狗散步，需要时走时停',
+    tags: ['遛狗', '散步', '日常', '宠物']
+  },
+  {
+    id: 'commute-walk',
+    name: '步行上下班/上下学',
+    category: 'daily',
+    met: 3.5,
+    description: '步行通勤，保持一定速度',
+    tags: ['步行', '上班', '通勤', '日常']
+  },
+  {
+    id: 'morning-exercise',
+    name: '晨练（广播体操/早操）',
+    category: 'daily',
+    met: 3.5,
+    description: '广播体操、伸展操等早间活动',
+    tags: ['早操', '广播体操', '晨练', '日常']
+  },
+  {
+    id: 'square-dance',
+    name: '广场舞',
+    category: 'daily',
+    met: 5.5,
+    description: '广场舞，中低强度有节奏舞蹈',
+    tags: ['广场舞', '跳舞', '日常', '社交']
+  },
+  {
+    id: 'baduanjin',
+    name: '八段锦/气功',
+    category: 'daily',
+    met: 2.5,
+    description: '八段锦、五禽戏等传统功法',
+    tags: ['八段锦', '气功', '五禽戏', '传统', '日常']
+  },
+  {
+    id: 'hiking',
+    name: '爬山/郊外徒步',
+    category: 'daily',
+    met: 6.0,
+    description: '山地徒步，强度根据地形变化',
+    tags: ['爬山', '登山', '徒步', '户外', '日常']
+  },
+  {
+    id: 'hiking-flat',
+    name: '户外平地徒步',
+    category: 'daily',
+    met: 4.0,
+    description: '平地郊外徒步，公园长距离步行',
+    tags: ['徒步', '公园', '户外', '散步', '日常']
+  },
+  {
+    id: 'stairs-daily',
+    name: '日常爬楼梯（步行）',
+    category: 'daily',
+    met: 4.0,
+    description: '日常走楼梯代替电梯',
+    tags: ['爬楼梯', '楼梯', '日常', '轻松']
+  },
+  {
+    id: 'supermarket',
+    name: '逛超市/菜市场',
+    category: 'daily',
+    met: 2.3,
+    description: '超市或菜市场购物，边走边停',
+    tags: ['购物', '超市', '菜市场', '日常']
+  },
+  {
+    id: 'standing-long',
+    name: '长时间站立（餐厅/商场）',
+    category: 'daily',
+    met: 2.0,
+    description: '长时间站立，如服务员、导购',
+    tags: ['站立', '日常', '工作']
+  },
+  {
+    id: 'bike-commute',
+    name: '骑车上下班',
+    category: 'daily',
+    met: 4.0,
+    description: '通勤骑行，中等速度',
+    tags: ['骑车', '通勤', '上班', '日常']
+  },
+  {
+    id: 'move-house',
+    name: '搬运重物/搬家',
+    category: 'daily',
+    met: 5.0,
+    description: '搬运重物、搬家等体力活动',
+    tags: ['搬运', '搬家', '日常', '体力活']
+  },
 ];
 
 // 运动分类显示名称
