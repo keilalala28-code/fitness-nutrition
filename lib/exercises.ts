@@ -975,6 +975,226 @@ export const EXERCISES: ExerciseItem[] = [
     description: '搬运重物、搬家等体力活动',
     tags: ['搬运', '搬家', '日常', '体力活']
   },
+
+  // ==================== B站跟练 - 帕梅拉 Pamela Reif ====================
+  {
+    id: 'bilibili-pamela-endorphin',
+    name: '帕梅拉·内啡肽有氧（10分钟）',
+    category: 'cardio',
+    met: 8.5,
+    description: '高强度有氧舞步，内啡肽飙升，B站6000万播放',
+    tags: ['帕梅拉', 'Pamela', 'B站跟练', '有氧舞蹈', '高强度', '燃脂', '10分钟', '跟练']
+  },
+  {
+    id: 'bilibili-pamela-hiit-10',
+    name: '帕梅拉·全身HIIT燃脂（10分钟）',
+    category: 'cardio',
+    met: 9.0,
+    description: '无器械全身HIIT，高效燃脂，B站3000万播放',
+    tags: ['帕梅拉', 'Pamela', 'B站跟练', 'HIIT', '高强度', '燃脂', '无器械', '10分钟', '跟练']
+  },
+  {
+    id: 'bilibili-pamela-jump-15',
+    name: '帕梅拉·跳跃有氧进阶（15分钟）',
+    category: 'cardio',
+    met: 7.5,
+    description: '中高强度跳跃有氧，全程站立，趣味燃脂',
+    tags: ['帕梅拉', 'Pamela', 'B站跟练', '跳跃有氧', '中高强度', '15分钟', '跟练']
+  },
+  {
+    id: 'bilibili-pamela-hiit-best',
+    name: '帕梅拉·最佳HIIT合集（10分钟）',
+    category: 'cardio',
+    met: 9.5,
+    description: '帕梅拉精华HIIT合集，极高强度全身燃脂',
+    tags: ['帕梅拉', 'Pamela', 'B站跟练', 'HIIT', '极限', '合集', '10分钟', '跟练']
+  },
+  {
+    id: 'bilibili-pamela-cpop-dance',
+    name: '帕梅拉×Eleni·千禧中文金曲有氧（12分钟）',
+    category: 'cardio',
+    met: 6.5,
+    description: '《快乐崇拜》《舞娘》《彩虹的微笑》中文金曲有氧舞蹈',
+    tags: ['帕梅拉', 'Pamela', 'Eleni', 'B站跟练', '中文歌', '有氧舞蹈', '中强度', '12分钟', '跟练', '快乐']
+  },
+  {
+    id: 'bilibili-pamela-newyear-step',
+    name: '帕梅拉·马年踏步舞（10分钟）',
+    category: 'cardio',
+    met: 5.5,
+    description: '2026马年特辑，民乐有氧踏步，老少皆宜',
+    tags: ['帕梅拉', 'Pamela', 'B站跟练', '踏步舞', '新年', '低中强度', '10分钟', '跟练', '新手']
+  },
+  {
+    id: 'bilibili-pamela-stretch',
+    name: '帕梅拉·每日拉伸放松（8分钟）',
+    category: 'flexibility',
+    met: 3.0,
+    description: '睡前及训练后拉伸放松，拒绝僵硬',
+    tags: ['帕梅拉', 'Pamela', 'B站跟练', '拉伸', '放松', '睡前', '低强度', '8分钟', '跟练']
+  },
+  {
+    id: 'bilibili-pamela-40min-cpop',
+    name: '帕梅拉·CPOP金曲连跳（40分钟）',
+    category: 'cardio',
+    met: 6.0,
+    description: '40分钟中文流行歌曲连跳，马年直播回放',
+    tags: ['帕梅拉', 'Pamela', 'B站跟练', '中文歌', '有氧舞蹈', '中强度', '40分钟', '跟练', '长时间']
+  },
+
+  // ==================== B站跟练 - Jo姐 (growwithjo) ====================
+  {
+    id: 'bilibili-jo-morning-30',
+    name: 'Jo姐·巨燃脂早操（30分钟）',
+    category: 'cardio',
+    met: 5.5,
+    description: '唤醒活力提高代谢，站立有氧，膝盖友好',
+    tags: ['Jo姐', 'growwithjo', 'B站跟练', '早操', '有氧操', '中强度', '30分钟', '跟练', '膝盖友好']
+  },
+  {
+    id: 'bilibili-jo-fullbody-30',
+    name: 'Jo姐·全身有氧训练（30分钟）',
+    category: 'cardio',
+    met: 5.5,
+    description: '改善心情提升状态，全身有氧训练',
+    tags: ['Jo姐', 'growwithjo', 'B站跟练', '全身有氧', '中强度', '30分钟', '跟练']
+  },
+  {
+    id: 'bilibili-jo-3000step',
+    name: 'Jo姐·有氧踏步5km（40分钟）',
+    category: 'cardio',
+    met: 4.5,
+    description: '全是耳熟英文歌，踏步燃脂5km，越跳越有劲',
+    tags: ['Jo姐', 'growwithjo', 'B站跟练', '踏步', '有氧步行操', '低中强度', '40分钟', '跟练', '新手', '膝盖友好']
+  },
+  {
+    id: 'bilibili-jo-kpop-30',
+    name: 'Jo姐·KPOP晨间训练（30分钟）',
+    category: 'cardio',
+    met: 6.0,
+    description: '9首KPOP男女团MV燃脂，开启新的一天',
+    tags: ['Jo姐', 'growwithjo', 'B站跟练', 'KPOP', '有氧舞操', '中强度', '30分钟', '跟练', '韩舞']
+  },
+  {
+    id: 'bilibili-jo-quick-20',
+    name: 'Jo姐·省时有氧训练（20分钟）',
+    category: 'cardio',
+    met: 4.5,
+    description: '新手必练，站立有氧，重在坚持',
+    tags: ['Jo姐', 'growwithjo', 'B站跟练', '站立有氧', '新手', '20分钟', '跟练', '入门']
+  },
+  {
+    id: 'bilibili-jo-low-8',
+    name: 'Jo姐·低强度有氧（8分钟）',
+    category: 'cardio',
+    met: 3.5,
+    description: '适合所有人，包括康复期和老年人',
+    tags: ['Jo姐', 'growwithjo', 'B站跟练', '低强度', '8分钟', '跟练', '康复', '新手', '老年人']
+  },
+
+  // ==================== B站跟练 - 周六野 Zoey ====================
+  {
+    id: 'bilibili-zoey-waist-5',
+    name: '周六野·5分钟瘦腰运动',
+    category: 'cardio',
+    met: 5.0,
+    description: '快速瘦肚子马甲线，5分钟核心有氧，B站4700万播放',
+    tags: ['周六野', 'Zoey', 'B站跟练', '瘦腰', '核心有氧', '马甲线', '5分钟', '跟练', '初学者']
+  },
+  {
+    id: 'bilibili-zoey-hiit-10',
+    name: '周六野·10分钟超燃脂HIIT有氧',
+    category: 'cardio',
+    met: 8.5,
+    description: '不伤膝盖，比跑步更有效的燃脂减肥操',
+    tags: ['周六野', 'Zoey', 'B站跟练', 'HIIT', '燃脂', '高强度', '10分钟', '跟练', '不伤膝盖']
+  },
+  {
+    id: 'bilibili-zoey-standing-20',
+    name: '周六野·20分钟站立燃脂有氧（进阶）',
+    category: 'cardio',
+    met: 7.0,
+    description: '全程站立燃脂有氧，进阶版，中高强度',
+    tags: ['周六野', 'Zoey', 'B站跟练', '站立有氧', '中高强度', '20分钟', '跟练', '进阶']
+  },
+  {
+    id: 'bilibili-zoey-low-impact-20',
+    name: '周六野·20分钟无跳跃低强度有氧',
+    category: 'cardio',
+    met: 4.5,
+    description: '无跳动不伤膝盖，低强度减肥操，新手友好',
+    tags: ['周六野', 'Zoey', 'B站跟练', '无跳跃', '低冲击', '低强度', '20分钟', '跟练', '新手', '膝盖友好']
+  },
+
+  // ==================== B站跟练 - Eleni Fit ====================
+  {
+    id: 'bilibili-eleni-standing-30',
+    name: 'Eleni Fit·站立有氧训练（30分钟）',
+    category: 'cardio',
+    met: 5.5,
+    description: '无跳跃无重复，瘦腹瘦大腿，膝盖友好，B站93万播放',
+    tags: ['Eleni', 'Eleni Fit', 'B站跟练', '站立有氧', '无跳跃', '中强度', '30分钟', '跟练', '膝盖友好']
+  },
+  {
+    id: 'bilibili-eleni-hiit-30',
+    name: 'Eleni Fit·低冲击HIIT有氧（30分钟）',
+    category: 'cardio',
+    met: 7.0,
+    description: '燃脂暴汗，健美操风格，无跳跃无重复，全程站立',
+    tags: ['Eleni', 'Eleni Fit', 'B站跟练', '低冲击HIIT', '中高强度', '30分钟', '跟练', '暴汗']
+  },
+
+  // ==================== B站跟练 - 刘畊宏 ====================
+  {
+    id: 'bilibili-liu-aerobic-30',
+    name: '刘畊宏·快乐健身操（30分钟）',
+    category: 'cardio',
+    met: 6.0,
+    description: '全家欢乐跟练，B站1400万播放，附带拉伸',
+    tags: ['刘畊宏', 'B站跟练', '健身操', '中强度', '30分钟', '跟练', '全家', '快乐']
+  },
+  {
+    id: 'bilibili-liu-bencao-20',
+    name: '刘畊宏·本草纲目毽子操（20分钟）',
+    category: 'cardio',
+    met: 7.0,
+    description: '全网播放超10亿的现象级毽子操，中高强度',
+    tags: ['刘畊宏', 'B站跟练', '毽子操', '中高强度', '20分钟', '跟练', '本草纲目', '爆款']
+  },
+
+  // ==================== B站跟练 - 其他热门UP主 ====================
+  {
+    id: 'bilibili-dada-aerobic-60',
+    name: '达达有氧健身操（60分钟）',
+    category: 'cardio',
+    met: 5.5,
+    description: '传统有氧健身操，适合中老年及全家跟练',
+    tags: ['达达', 'B站跟练', '有氧健身操', '中强度', '60分钟', '跟练', '中老年', '传统']
+  },
+  {
+    id: 'bilibili-mizi-standing-25',
+    name: 'MIZI·无跳无蹲站立塑形操（25分钟）',
+    category: 'cardio',
+    met: 4.5,
+    description: '腹部无跳跃燃脂，全程站立，适合体态改善',
+    tags: ['MIZI', 'B站跟练', '站立塑形', '无跳跃', '低中强度', '25分钟', '跟练', '新手', '体态']
+  },
+  {
+    id: 'bilibili-keep-hiit-20',
+    name: 'Keep·燃脂HIIT操（20分钟）',
+    category: 'cardio',
+    met: 7.5,
+    description: 'Keep官方跟练，中高强度燃脂HIIT，打卡减脂',
+    tags: ['Keep', 'B站跟练', 'HIIT', '燃脂', '中高强度', '20分钟', '跟练', '打卡']
+  },
+  {
+    id: 'bilibili-keep-aerobic-15',
+    name: 'Keep·有氧减脂操（15分钟）',
+    category: 'cardio',
+    met: 6.0,
+    description: 'Keep官方15分钟有氧减脂，适合上班族碎片时间',
+    tags: ['Keep', 'B站跟练', '有氧操', '中强度', '15分钟', '跟练', '上班族', '碎片时间']
+  },
 ];
 
 // 运动分类显示名称
