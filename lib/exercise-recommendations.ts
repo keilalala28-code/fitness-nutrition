@@ -320,7 +320,19 @@ export function getExerciseRecommendations(
     return b.estimatedCalories - a.estimatedCalories;
   });
 
-  return recommendations.slice(0, limit);
+  // 保底：确保 limit>=4 时，结果里至少包含 1 个日常活动（散步等）
+  const result = recommendations.slice(0, limit);
+  if (limit >= 4) {
+    const hasDaily = result.some(r => r.exercise.category === 'daily');
+    if (!hasDaily) {
+      const dailyRec = recommendations.find(r => r.exercise.category === 'daily');
+      if (dailyRec) {
+        result.splice(limit - 1, 1, dailyRec);
+      }
+    }
+  }
+
+  return result;
 }
 
 /**
