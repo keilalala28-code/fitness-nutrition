@@ -165,6 +165,7 @@ export default function FoodSearch({ onFoodAdded }: FoodSearchProps) {
                   onChange={(e) => setGrams(Math.max(1, parseInt(e.target.value) || 0))}
                   min="1"
                   step="10"
+                  inputMode="numeric"
                   className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center"
                 />
                 <span className="text-gray-500">g</span>

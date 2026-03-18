@@ -240,3 +240,25 @@ export interface ExerciseRecommendation {
   suitability: 'high' | 'medium' | 'low';  // 适合程度
 }
 
+// 体重记录
+export interface WeightRecord {
+  id: string;
+  date: string;        // YYYY-MM-DD
+  weight: number;      // kg
+  note?: string;
+  createdAt: number;
+}
+
+// 常用套餐
+export interface MealPreset {
+  id: string;
+  name: string;
+  items: Array<{
+    foodId: string;
+    foodName: string;
+    grams: number;
+    nutrients: NutrientData;
+  }>;
+  createdAt: number;
+}
+

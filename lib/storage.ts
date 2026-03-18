@@ -9,6 +9,8 @@ const STORAGE_KEYS = {
   ACCOUNTS: 'fitness_accounts',
   CURRENT_USER: 'fitness_current_user',
   USER_ID_COUNTER: 'fitness_user_id_counter',
+  WEIGHT_RECORDS: 'fitness_weight_records',
+  MEAL_PRESETS: 'fitness_meal_presets',
 };
 
 /**
@@ -547,4 +549,147 @@ export function getNextSuggestedMeal(): MealType {
 
   // 默认返回第一个剩余餐次
   return remaining[0] || 'snack';
+}
+
+// ==================== 体重记录操作 ====================
+
+export function getWeightRecords(): import('@/types/nutrition').WeightRecord[] {
+  if (!isBrowser()) return [];
+  const data = localStorage.getItem('fitness_weight_records');
+  if (!data) return [];
+  try { return JSON.parse(data); } catch { return []; }
+}
+
+export function addWeightRecord(weight: number, note?: string): import('@/types/nutrition').WeightRecord {
+  const records = getWeightRecords();
+  const record: import('@/types/nutrition').WeightRecord = {
+    id: generateId(),
+    date: getTodayDateString(),
+    weight,
+    note,
+    createdAt: Date.now(),
+  };
+  // 同一天只保留最新一条
+  const filtered = records.filter(r => r.date !== record.date);
+  filtered.push(record);
+  filtered.sort((a, b) => a.date.localeCompare(b.date));
+  localStorage.setItem('fitness_weight_records', JSON.stringify(filtered));
+  return record;
+}
+
+export function deleteWeightRecord(id: string): boolean {
+  const records = getWeightRecords();
+  const filtered = records.filter(r => r.id !== id);
+  if (filtered.length === records.length) return false;
+  localStorage.setItem('fitness_weight_records', JSON.stringify(filtered));
+  return true;
+}
+
+// ==================== 常用套餐操作 ====================
+
+export function getMealPresets(): import('@/types/nutrition').MealPreset[] {
+  if (!isBrowser()) return [];
+  const data = localStorage.getItem('fitness_meal_presets');
+  if (!data) return [];
+  try { return JSON.parse(data); } catch { return []; }
+}
+
+export function saveMealPreset(name: string, items: import('@/types/nutrition').MealPreset['items']): import('@/types/nutrition').MealPreset {
+  const presets = getMealPresets();
+  const preset: import('@/types/nutrition').MealPreset = {
+    id: generateId(),
+    name,
+    items,
+    createdAt: Date.now(),
+  };
+  presets.push(preset);
+  localStorage.setItem('fitness_meal_presets', JSON.stringify(presets));
+  return preset;
+}
+
+export function deleteMealPreset(id: string): boolean {
+  const presets = getMealPresets();
+  const filtered = presets.filter(p => p.id !== id);
+  if (filtered.length === presets.length) return false;
+  localStorage.setItem('fitness_meal_presets', JSON.stringify(filtered));
+  return true;
+}
+
+// ==================== 连续打卡天数 ====================
+
+export function getConsecutiveDays(): number {
+  if (!isBrowser()) return 0;
+  const entries = getAllDiaryEntries();
+  if (entries.length === 0) return 0;
+  const datesWithEntries = new Set(entries.map(e => e.date));
+  let count = 0;
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    if (datesWithEntries.has(dateStr)) {
+      count++;
+    } else if (i > 0) {
+      break;
+    }
+  }
+  return count;
+}
+
+// ==================== 复制昨日餐食 ====================
+
+export function copyYesterdayMeals(): number {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+  const todayStr = getTodayDateString();
+  const yesterdayEntries = getDiaryEntriesByDate(yesterdayStr);
+  const todayEntries = getDiaryEntriesByDate(todayStr);
+  const todayFoodIds = new Set(todayEntries.map(e => e.foodId + e.mealType));
+  let added = 0;
+  for (const entry of yesterdayEntries) {
+    if (!todayFoodIds.has(entry.foodId + entry.mealType)) {
+      addDiaryEntry({
+        date: todayStr,
+        foodId: entry.foodId,
+        foodName: entry.foodName,
+        grams: entry.grams,
+        nutrients: entry.nutrients,
+        mealType: entry.mealType,
+      });
+      added++;
+    }
+  }
+  return added;
+}
+
+// ==================== 周报数据 ====================
+
+export function getWeeklyStats(): {
+  date: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}[] {
+  const result = [];
+  const today = new Date();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const entries = getDiaryEntriesByDate(dateStr);
+    const totals = entries.reduce(
+      (acc, e) => ({
+        calories: acc.calories + e.nutrients.calories,
+        protein: acc.protein + e.nutrients.protein,
+        carbs: acc.carbs + e.nutrients.carbs,
+        fat: acc.fat + e.nutrients.fat,
+      }),
+      { calories: 0, protein: 0, carbs: 0, fat: 0 }
+    );
+    result.push({ date: dateStr, ...totals });
+  }
+  return result;
 }

@@ -14,6 +14,9 @@ import DataManager from '@/components/DataManager';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import OnboardingModal from '@/components/OnboardingModal';
 import RecentFoods from '@/components/RecentFoods';
+import WeightTracker from '@/components/WeightTracker';
+import MealPresets from '@/components/MealPresets';
+import WeeklyReport from '@/components/WeeklyReport';
 import { useToast } from '@/components/Toast';
 import { useMode } from '@/components/ModeContext';
 import { UserGoals, NutrientData, DiaryEntry, ExerciseEntry, MealType, UserAccount } from '@/types/nutrition';
@@ -28,6 +31,7 @@ import {
   getCurrentUserAccount,
   getAllUserAccounts,
   getNextSuggestedMeal,
+  copyYesterdayMeals,
 } from '@/lib/storage';
 
 const MEAL_LABELS: Record<MealType, string> = {
@@ -134,6 +138,16 @@ export default function Home() {
     loadData();
   };
 
+  const handleCopyYesterday = () => {
+    const count = copyYesterdayMeals();
+    if (count > 0) {
+      showToast(`已复制昨日 ${count} 条饮食记录`, 'success');
+      loadData();
+    } else {
+      showToast('昨日没有记录可复制', 'info');
+    }
+  };
+
   const scrollToSearch = () => {
     searchRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setActiveTab('food');
@@ -216,9 +230,18 @@ export default function Home() {
       <div className="bg-white rounded-xl shadow-sm p-5">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-base font-semibold text-gray-900">📝 今日饮食记录</h2>
-          <Link href="/diary" className="text-primary-600 hover:text-primary-700 text-sm">
-            查看历史 →
-          </Link>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleCopyYesterday}
+              className="text-sm text-gray-400 hover:text-gray-600 flex items-center gap-1"
+              title="复制昨日饮食"
+            >
+              📋 复制昨日
+            </button>
+            <Link href="/diary" className="text-primary-600 hover:text-primary-700 text-sm">
+              查看历史 →
+            </Link>
+          </div>
         </div>
 
         {todayEntries.length === 0 ? (
@@ -301,6 +324,9 @@ export default function Home() {
       {/* 今日运动计划 */}
       <DailyExercisePlan onExerciseAdded={loadData} />
 
+      {/* 本周报告 */}
+      {goals && <WeeklyReport goals={goals} />}
+
       {/* 饮食推荐（可折叠） */}
       {goals && (
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -338,6 +364,12 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* 体重追踪 */}
+      <WeightTracker />
+
+      {/* 常用套餐 */}
+      <MealPresets todayEntries={todayEntries} onAdded={loadData} />
 
       {/* 数据备份（紧凑） */}
       <DataManager />

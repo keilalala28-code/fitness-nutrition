@@ -294,10 +294,46 @@ function createInventoryCombo(
 ): Combo | null {
   if (inventory.length === 0) return null;
 
+  // 优先：看库存食材是否能凑出一道家常菜
+  const inventoryNames = inventory.map(({ food }) => food.name);
+  const homecookingDishes = ALL_FOODS.filter(f =>
+    f.tags.includes('家常菜') &&
+    !['soup'].includes(f.category)
+  );
+
+  // 找到食材名称与库存匹配度最高的家常菜
+  let bestDish: FoodItem | null = null;
+  let bestMatchCount = 0;
+  for (const dish of homecookingDishes) {
+    const matchCount = inventoryNames.filter(name =>
+      dish.name.includes(name) || dish.tags.some(t => t === name)
+    ).length;
+    if (matchCount > bestMatchCount) {
+      bestMatchCount = matchCount;
+      bestDish = dish;
+    }
+  }
+
+  if (bestDish && bestMatchCount >= 1) {
+    // 找到匹配的家常菜，搭配主食推荐
+    const staple = ALL_FOODS.find(f => f.id === 'rice-white');
+    const items: ComboItem[] = [
+      { food: bestDish, grams: bestDish.servingSize, source: 'homemade' },
+    ];
+    if (staple && mealType !== 'snack') {
+      items.push({ food: staple, grams: 150, source: 'homemade' });
+    }
+    return {
+      name: `用库存做：${bestDish.name}${staple && mealType !== 'snack' ? ' + 米饭' : ''}`,
+      items,
+      totalNutrients: calculateTotalNutrients(items),
+      reason: `用您库存中的${inventoryNames.slice(0, 2).join('、')}可以做这道菜`,
+    };
+  }
+
+  // 兜底：原始食材组合（最多3种）
   const items: ComboItem[] = [];
   let remainingCalories = targetCalories;
-
-  // 过滤适合年龄的食材，并按蛋白质和适配分数排序
   const sorted = [...inventory]
     .filter(({ food }) => isFoodSuitableForAge(food, agePreferences))
     .sort((a, b) => {
@@ -307,25 +343,19 @@ function createInventoryCombo(
     });
 
   for (const { food } of sorted) {
-    if (remainingCalories <= 0) break;
-
+    if (remainingCalories <= 0 || items.length >= 3) break;
     const grams = Math.min(food.servingSize, Math.round((remainingCalories / food.nutrients.calories) * 100));
     if (grams >= 50) {
       items.push({ food, grams, source: 'inventory' });
       remainingCalories -= (food.nutrients.calories * grams) / 100;
     }
-
-    if (items.length >= 3) break; // 最多3种食材
   }
 
   if (items.length === 0) return null;
-
-  const totalNutrients = calculateTotalNutrients(items);
-
   return {
-    name: `我的食材：${items.map(i => i.food.name).join(' + ')}`,
+    name: `库存食材：${items.map(i => i.food.name).join(' + ')}`,
     items,
-    totalNutrients,
+    totalNutrients: calculateTotalNutrients(items),
     reason: '使用您库存中的食材，避免浪费',
   };
 }

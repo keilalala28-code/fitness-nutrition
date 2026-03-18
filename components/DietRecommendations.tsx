@@ -192,20 +192,34 @@ export default function DietRecommendations({ consumed, burned, goals, userProfi
         </div>
       ))}
 
-      {/* 快捷建议 */}
-      <div className="pt-4 border-t border-gray-100">
-        <p className="text-sm font-medium text-gray-700 mb-2">💡 今日饮食建议：</p>
-        <ul className="text-sm text-gray-600 space-y-1">
-          {deficit.protein > 30 && (
-            <li>• 优先补充蛋白质，推荐即食鸡胸肉或轻食套餐</li>
+      {/* 缺什么补什么 */}
+      <div className="pt-4 border-t border-gray-100 space-y-2">
+        <p className="text-sm font-medium text-gray-700">💡 今日补充建议：</p>
+        <div className="flex flex-wrap gap-2">
+          {deficit.protein > 20 && (
+            <div className="flex-1 min-w-0 bg-red-50 border border-red-100 rounded-xl p-3 text-xs">
+              <div className="font-medium text-red-700 mb-1">🥩 还差 {Math.round(deficit.protein)}g 蛋白质</div>
+              <div className="text-red-600">推荐：鸡胸肉100g（19g蛋白）或 鸡蛋2个（13g蛋白）</div>
+            </div>
           )}
-          {deficit.calories > 500 && deficit.protein < 20 && (
-            <li>• 热量缺口较大，可选择超级碗或沙县套餐饭</li>
+          {deficit.calories > 300 && deficit.protein <= 20 && (
+            <div className="flex-1 min-w-0 bg-orange-50 border border-orange-100 rounded-xl p-3 text-xs">
+              <div className="font-medium text-orange-700 mb-1">🍚 还差 {Math.round(deficit.calories)} 卡热量</div>
+              <div className="text-orange-600">推荐：米饭150g（174卡）或 全麦面包2片（174卡）</div>
+            </div>
           )}
-          {deficit.carbs > 50 && (
-            <li>• 碳水摄入不足，可搭配糙米或全麦面包</li>
+          {deficit.carbs > 40 && (
+            <div className="flex-1 min-w-0 bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs">
+              <div className="font-medium text-blue-700 mb-1">🌾 还差 {Math.round(deficit.carbs)}g 碳水</div>
+              <div className="text-blue-600">推荐：香蕉1根（27g碳水）或 燕麦40g（26g碳水）</div>
+            </div>
           )}
-        </ul>
+          {deficit.protein <= 20 && deficit.calories <= 300 && deficit.carbs <= 40 && (
+            <div className="w-full bg-green-50 border border-green-100 rounded-xl p-3 text-xs text-green-700">
+              ✅ 各营养素摄入均衡，继续保持！
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
