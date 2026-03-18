@@ -99,7 +99,7 @@ export default function DiaryPage() {
   };
 
   const getDayTotal = (entries: DiaryEntry[]): NutrientData => {
-    return entries.reduce(
+    const raw = entries.reduce(
       (acc, e) => ({
         calories: acc.calories + e.nutrients.calories,
         protein: acc.protein + e.nutrients.protein,
@@ -108,6 +108,12 @@ export default function DiaryPage() {
       }),
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
     );
+    return {
+      calories: Math.round(raw.calories),
+      protein: Math.round(raw.protein * 10) / 10,
+      carbs: Math.round(raw.carbs * 10) / 10,
+      fat: Math.round(raw.fat * 10) / 10,
+    };
   };
 
   const getExerciseTotal = (exercises: ExerciseEntry[]): number => {
