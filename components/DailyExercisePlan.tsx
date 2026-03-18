@@ -17,6 +17,7 @@ import {
   getExerciseStreak,
 } from '@/lib/storage';
 import { useToast } from '@/components/Toast';
+import { checkAndAwardBadges, addBlindboxPoints, ALL_BADGES } from '@/lib/gamification';
 
 const GOAL_LABELS: Record<string, string> = {
   lose: '🔥 减脂',
@@ -106,6 +107,12 @@ export default function DailyExercisePlan({ onExerciseAdded }: DailyExercisePlan
       caloriesBurned: Math.round(calories),
     });
     showToast(`✅ 打卡成功！${rec.exercise.name} ${rec.suggestedDuration}分钟，消耗 ${Math.round(calories)} 卡`, 'success');
+    const newBadges = checkAndAwardBadges(profile.height);
+    addBlindboxPoints(10);
+    if (newBadges.length > 0) {
+      const badge = ALL_BADGES.find(b => b.id === newBadges[0]);
+      if (badge) setTimeout(() => showToast(`🏆 新徽章解锁：${badge.name} ${badge.icon}`, 'success'), 500);
+    }
     setJustCheckedIn(rec.exercise.id);
     setTimeout(() => { setAddingId(null); setJustCheckedIn(null); }, 1500);
     loadData();

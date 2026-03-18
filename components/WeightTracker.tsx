@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { WeightRecord } from '@/types/nutrition';
 import { getWeightRecords, addWeightRecord, deleteWeightRecord, getCurrentUserAccount, getTodayDateString } from '@/lib/storage';
 import { useToast } from '@/components/Toast';
+import { checkAndAwardBadges, addBlindboxPoints, ALL_BADGES } from '@/lib/gamification';
 
 function calcBMI(weight: number, heightCm: number): number {
   const h = heightCm / 100;
@@ -82,6 +83,12 @@ export default function WeightTracker() {
     }
     addWeightRecord(w, inputNote || undefined);
     showToast('体重已记录 ✓', 'success');
+    const newBadges = checkAndAwardBadges(heightCm || undefined);
+    addBlindboxPoints(5);
+    if (newBadges.length > 0) {
+      const badge = ALL_BADGES.find(b => b.id === newBadges[0]);
+      if (badge) setTimeout(() => showToast(`🏆 新徽章解锁：${badge.name} ${badge.icon}`, 'success'), 500);
+    }
     setInputWeight('');
     setInputNote('');
     load();

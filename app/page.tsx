@@ -17,6 +17,7 @@ import RecentFoods from '@/components/RecentFoods';
 import WeightTracker from '@/components/WeightTracker';
 import MealPresets from '@/components/MealPresets';
 import WeeklyReport from '@/components/WeeklyReport';
+import GamificationPanel from '@/components/GamificationPanel';
 import { useToast } from '@/components/Toast';
 import { useMode } from '@/components/ModeContext';
 import { UserGoals, NutrientData, DiaryEntry, MealType, UserAccount } from '@/types/nutrition';
@@ -183,6 +184,15 @@ export default function Home() {
         </div>
       )}
 
+      {/* 今日运动打卡 */}
+      <DailyExercisePlan onExerciseAdded={loadData} />
+
+      {/* 体重记录 */}
+      <WeightTracker />
+
+      {/* 成就与奖励 */}
+      <GamificationPanel />
+
       {/* 今日饮食记录（移到中间位置，更突出） */}
       <div className="bg-white rounded-xl shadow-sm p-5">
         <div className="flex justify-between items-center mb-4">
@@ -277,12 +287,6 @@ export default function Home() {
           <ExerciseSearch onExerciseAdded={loadData} />
         )}
       </div>
-
-      {/* 今日运动打卡 */}
-      <DailyExercisePlan onExerciseAdded={loadData} />
-
-      {/* 体重记录 */}
-      <WeightTracker />
 
       {/* 本周报告 */}
       {goals && <WeeklyReport goals={goals} />}
