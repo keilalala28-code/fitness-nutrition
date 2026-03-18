@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const TABS = [
-  { href: '/', label: '首页', icon: '🏠' },
-  { href: '/search', label: '搜索', icon: '🔍' },
-  { href: '/diary', label: '日志', icon: '📝' },
-  { href: '/calculator', label: '计算', icon: '📊' },
+  { href: '/', label: '今日', icon: '🏠' },
+  { href: '/exercise', label: '运动', icon: '🏃' },
+  { href: '/weight', label: '体重', icon: '⚖️' },
+  { href: '/me', label: '我的', icon: '👤' },
 ];
 
 export default function BottomTabBar() {

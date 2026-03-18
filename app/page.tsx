@@ -1,23 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import DailyProgress from '@/components/DailyProgress';
 import FoodSearch from '@/components/FoodSearch';
-import ExerciseSearch from '@/components/ExerciseSearch';
 import DietRecommendations from '@/components/DietRecommendations';
-import ExerciseRecommendations from '@/components/ExerciseRecommendations';
-import DailyExercisePlan from '@/components/DailyExercisePlan';
-import UserAccountManager from '@/components/UserAccountManager';
-import InventoryManager from '@/components/InventoryManager';
-import DataManager from '@/components/DataManager';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import OnboardingModal from '@/components/OnboardingModal';
 import RecentFoods from '@/components/RecentFoods';
-import WeightTracker from '@/components/WeightTracker';
-import MealPresets from '@/components/MealPresets';
-import WeeklyReport from '@/components/WeeklyReport';
-import GamificationPanel from '@/components/GamificationPanel';
 import { useToast } from '@/components/Toast';
 import { useMode } from '@/components/ModeContext';
 import { UserGoals, NutrientData, DiaryEntry, MealType, UserAccount } from '@/types/nutrition';
@@ -40,17 +30,10 @@ const MEAL_LABELS: Record<MealType, string> = {
   snack: '🍎 加餐',
 };
 
-interface PendingDelete {
-  id: string;
-  type: 'food';
-  message: string;
-}
-
 export default function Home() {
   const { showToast } = useToast();
   const { mode } = useMode();
   const isMobile = mode === 'mobile';
-  const searchRef = useRef<HTMLDivElement>(null);
 
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
@@ -58,17 +41,13 @@ export default function Home() {
   const [todayEntries, setTodayEntries] = useState<DiaryEntry[]>([]);
   const [consumed, setConsumed] = useState<NutrientData>({ calories: 0, protein: 0, carbs: 0, fat: 0 });
   const [burned, setBurned] = useState(0);
-  const [activeTab, setActiveTab] = useState<'food' | 'exercise'>('food');
-  const [inventoryKey, setInventoryKey] = useState(0);
-  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [showRecommendations, setShowRecommendations] = useState(false);
-  const [showInventory, setShowInventory] = useState(false);
 
   const loadData = () => {
     const account = getCurrentUserAccount();
     setCurrentUser(account);
-    const savedGoals = account?.goals || getUserGoals();
-    setGoals(savedGoals);
+    setGoals(account?.goals || getUserGoals());
 
     const entries = getDiaryEntriesByDate(getTodayDateString());
     setTodayEntries(entries);
@@ -97,159 +76,119 @@ export default function Home() {
 
   useEffect(() => {
     loadData();
-    // 新用户引导：首次访问且无账户时自动弹出
-    if (getAllUserAccounts().length === 0) {
-      setShowOnboarding(true);
-    }
+    if (getAllUserAccounts().length === 0) setShowOnboarding(true);
   }, []);
 
-  const handleDeleteEntry = (id: string) => {
-    setPendingDelete({ id, type: 'food', message: '确定要删除这条饮食记录吗？' });
-  };
-
   const handleConfirmDelete = () => {
-    if (!pendingDelete) return;
-    deleteDiaryEntry(pendingDelete.id);
-    showToast('饮食记录已删除', 'success');
-    setPendingDelete(null);
-    loadData();
-  };
-
-  const handleUserChange = (account: UserAccount | null) => {
-    setCurrentUser(account);
-    if (account) setGoals(account.goals);
-    loadData();
-  };
-
-  const handleOnboardingComplete = () => {
-    setShowOnboarding(false);
+    if (!pendingDeleteId) return;
+    deleteDiaryEntry(pendingDeleteId);
+    showToast('记录已删除', 'success');
+    setPendingDeleteId(null);
     loadData();
   };
 
   const handleCopyYesterday = () => {
     const count = copyYesterdayMeals();
     if (count > 0) {
-      showToast(`已复制昨日 ${count} 条饮食记录`, 'success');
+      showToast(`已复制昨日 ${count} 条记录`, 'success');
       loadData();
     } else {
       showToast('昨日没有记录可复制', 'info');
     }
   };
 
-  const scrollToSearch = () => {
-    searchRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setActiveTab('food');
-  };
-
   const suggestedMeal = getNextSuggestedMeal();
+  const dateObj = new Date();
+  const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  const dateLabel = `${dateObj.getMonth() + 1}月${dateObj.getDate()}日 ${weekdays[dateObj.getDay()]}`;
 
   return (
-    <div className={`space-y-4 ${isMobile ? '' : 'space-y-6'}`}>
-      {/* 新手引导弹窗 */}
-      {showOnboarding && <OnboardingModal onComplete={handleOnboardingComplete} />}
-
-      {/* 确认删除对话框 */}
-      {pendingDelete && (
+    <div className="space-y-4">
+      {showOnboarding && <OnboardingModal onComplete={() => { setShowOnboarding(false); loadData(); }} />}
+      {pendingDeleteId && (
         <ConfirmDialog
-          message={pendingDelete.message}
+          message="确定要删除这条饮食记录吗？"
           onConfirm={handleConfirmDelete}
-          onCancel={() => setPendingDelete(null)}
+          onCancel={() => setPendingDeleteId(null)}
         />
       )}
 
-      {/* 欢迎横幅 */}
-      <div className={`bg-gradient-to-r from-primary-600 to-primary-500 rounded-2xl text-white ${isMobile ? 'p-4' : 'p-6'}`}>
-        <h1 className={`font-bold mb-1 ${isMobile ? 'text-lg' : 'text-2xl'}`}>
-          {currentUser ? `你好，${currentUser.name} 👋` : '健康管理'}
-        </h1>
-        <p className={`text-primary-100 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-          {getTodayDateString()} · 追踪营养摄入，科学管理健康
-        </p>
+      {/* 紧凑头部 */}
+      <div className="bg-gradient-to-r from-primary-600 to-primary-500 rounded-2xl text-white px-4 py-3 flex items-center justify-between">
+        <div>
+          <h1 className="font-bold text-base">
+            {currentUser ? `${currentUser.name} 👋` : '今日饮食'}
+          </h1>
+          <p className="text-primary-100 text-xs mt-0.5">{dateLabel}</p>
+        </div>
+        {goals && (
+          <div className="text-right">
+            <div className="text-xs text-primary-200">净摄入</div>
+            <div className="font-bold text-sm">{consumed.calories - burned} <span className="text-xs font-normal text-primary-200">卡</span></div>
+          </div>
+        )}
       </div>
 
-      {/* 用户管理（无账户时展示，有账户时紧凑显示） */}
-      {!showOnboarding && (
-        <UserAccountManager onUserChange={handleUserChange} />
-      )}
-
-      {/* 今日营养目标进度 */}
+      {/* 营养进度 */}
       {goals ? (
         <DailyProgress consumed={consumed} goals={goals} />
       ) : (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 text-center">
-          <p className="text-yellow-800 mb-3 text-sm">设置营养目标后，这里会显示今日进度</p>
-          <Link href="/calculator" className="inline-block px-5 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors text-sm font-medium">
-            计算我的TDEE目标 →
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
+          <p className="text-yellow-800 mb-2 text-sm">设置营养目标后，这里会显示今日进度</p>
+          <Link href="/calculator" className="inline-block px-4 py-2 bg-yellow-500 text-white rounded-lg text-sm font-medium">
+            计算我的TDEE →
           </Link>
         </div>
       )}
 
-      {/* 今日运动打卡 */}
-      <DailyExercisePlan onExerciseAdded={loadData} />
+      {/* 添加食物（置顶，最核心操作） */}
+      <div className="bg-white rounded-xl shadow-sm p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-gray-900">🍽️ 添加今日饮食</h2>
+          <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{MEAL_LABELS[suggestedMeal].replace(/.*\s/, '')}</span>
+        </div>
+        <FoodSearch onFoodAdded={loadData} />
+        <RecentFoods onAdded={loadData} currentMealType={suggestedMeal} />
+      </div>
 
-      {/* 体重记录 */}
-      <WeightTracker />
-
-      {/* 成就与奖励 */}
-      <GamificationPanel />
-
-      {/* 今日饮食记录（移到中间位置，更突出） */}
-      <div className="bg-white rounded-xl shadow-sm p-5">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-base font-semibold text-gray-900">📝 今日饮食记录</h2>
+      {/* 今日饮食记录 */}
+      <div className="bg-white rounded-xl shadow-sm p-4">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-sm font-semibold text-gray-900">📝 今日记录</h2>
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleCopyYesterday}
-              className="text-sm text-gray-400 hover:text-gray-600 flex items-center gap-1"
-              title="复制昨日饮食"
-            >
+            <button onClick={handleCopyYesterday} className="text-xs text-gray-400 hover:text-gray-600">
               📋 复制昨日
             </button>
-            <Link href="/diary" className="text-primary-600 hover:text-primary-700 text-sm">
-              查看历史 →
-            </Link>
+            <Link href="/diary" className="text-primary-600 text-xs">历史 →</Link>
           </div>
         </div>
 
         {todayEntries.length === 0 ? (
-          <div className="text-center py-6">
-            <div className="text-4xl mb-2">🍽️</div>
-            <p className="text-gray-500 text-sm mb-3">今天还没有记录，从第一餐开始吧！</p>
-            <button
-              onClick={scrollToSearch}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
-            >
-              + 添加今日{MEAL_LABELS[suggestedMeal].replace(/.*\s/, '')}
-            </button>
-          </div>
+          <p className="text-center text-gray-400 text-sm py-4">还没有记录，从上面搜索开始吧</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {(['breakfast', 'lunch', 'dinner', 'snack'] as MealType[]).map(mealType => {
               const mealEntries = todayEntries.filter(e => e.mealType === mealType);
               if (mealEntries.length === 0) return null;
               const mealTotal = mealEntries.reduce((sum, e) => sum + e.nutrients.calories, 0);
               return (
                 <div key={mealType} className="border border-gray-100 rounded-lg overflow-hidden">
-                  <div className="flex justify-between items-center px-3 py-2 bg-gray-50">
-                    <span className="text-sm font-medium text-gray-700">{MEAL_LABELS[mealType]}</span>
-                    <span className="text-xs text-orange-600 font-medium">{mealTotal} kcal</span>
+                  <div className="flex justify-between items-center px-3 py-1.5 bg-gray-50">
+                    <span className="text-xs font-medium text-gray-600">{MEAL_LABELS[mealType]}</span>
+                    <span className="text-xs text-orange-500 font-medium">{mealTotal} kcal</span>
                   </div>
-                  <div className="divide-y divide-gray-50">
-                    {mealEntries.map(entry => (
-                      <div key={entry.id} className="flex justify-between items-center px-3 py-2 text-sm">
-                        <div>
-                          <span className="font-medium text-gray-800">{entry.foodName}</span>
-                          <span className="text-gray-400 ml-2 text-xs">{entry.grams}g</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-gray-500 text-xs">
-                            {entry.nutrients.calories}卡 · 蛋白{entry.nutrients.protein}g
-                          </span>
-                          <button onClick={() => handleDeleteEntry(entry.id)} className="text-gray-300 hover:text-red-500 transition-colors text-xs">✕</button>
-                        </div>
+                  {mealEntries.map(entry => (
+                    <div key={entry.id} className="flex justify-between items-center px-3 py-2 text-sm border-t border-gray-50">
+                      <div>
+                        <span className="font-medium text-gray-800">{entry.foodName}</span>
+                        <span className="text-gray-400 ml-1.5 text-xs">{entry.grams}g</span>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-400 text-xs">{entry.nutrients.calories}卡 · 蛋白{entry.nutrients.protein}g</span>
+                        <button onClick={() => setPendingDeleteId(entry.id)} className="text-gray-300 hover:text-red-500 text-xs">✕</button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               );
             })}
@@ -257,83 +196,23 @@ export default function Home() {
         )}
       </div>
 
-      {/* 添加食物/运动 */}
-      <div ref={searchRef} className="bg-white rounded-xl shadow-sm p-5">
-        <div className="flex gap-2 mb-4">
-          <button
-            onClick={() => setActiveTab('food')}
-            className={`flex-1 py-2.5 rounded-xl font-medium transition-colors text-sm ${
-              activeTab === 'food' ? 'bg-primary-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            🍽️ 添加食物
-          </button>
-          <button
-            onClick={() => setActiveTab('exercise')}
-            className={`flex-1 py-2.5 rounded-xl font-medium transition-colors text-sm ${
-              activeTab === 'exercise' ? 'bg-orange-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            🏃 添加运动
-          </button>
-        </div>
-
-        {activeTab === 'food' ? (
-          <>
-            <FoodSearch onFoodAdded={loadData} />
-            <RecentFoods onAdded={loadData} currentMealType={suggestedMeal} />
-          </>
-        ) : (
-          <ExerciseSearch onExerciseAdded={loadData} />
-        )}
-      </div>
-
-      {/* 本周报告 */}
-      {goals && <WeeklyReport goals={goals} />}
-
-      {/* 饮食推荐（可折叠） */}
+      {/* 今日营养建议（折叠） */}
       {goals && (
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <button
             onClick={() => setShowRecommendations(!showRecommendations)}
-            className="w-full flex justify-between items-center p-5 text-left hover:bg-gray-50 transition-colors"
+            className="w-full flex justify-between items-center px-4 py-3 text-left hover:bg-gray-50"
           >
-            <span className="font-semibold text-gray-900 text-sm">🍽️ 智能饮食 & 运动推荐</span>
-            <span className="text-gray-400 text-sm">{showRecommendations ? '收起 ∧' : '展开 ∨'}</span>
+            <span className="text-sm font-semibold text-gray-900">💡 今日营养建议</span>
+            <span className="text-gray-400 text-xs">{showRecommendations ? '收起 ∧' : '展开 ∨'}</span>
           </button>
           {showRecommendations && (
-            <div className="px-5 pb-5 space-y-4">
-              <DietRecommendations key={inventoryKey} consumed={consumed} burned={burned} goals={goals} userProfile={currentUser?.profile} />
-              <ExerciseRecommendations
-                userProfile={currentUser?.profile}
-                targetCalories={goals ? Math.max(0, goals.calories - consumed.calories + burned) : undefined}
-              />
+            <div className="px-4 pb-4">
+              <DietRecommendations consumed={consumed} burned={burned} goals={goals} />
             </div>
           )}
         </div>
       )}
-
-      {/* 食材库存（可折叠） */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <button
-          onClick={() => setShowInventory(!showInventory)}
-          className="w-full flex justify-between items-center p-5 text-left hover:bg-gray-50 transition-colors"
-        >
-          <span className="font-semibold text-gray-900 text-sm">📦 食材库存管理</span>
-          <span className="text-gray-400 text-sm">{showInventory ? '收起 ∧' : '展开 ∨'}</span>
-        </button>
-        {showInventory && (
-          <div className="px-5 pb-5">
-            <InventoryManager onUpdate={() => { setInventoryKey(k => k + 1); }} />
-          </div>
-        )}
-      </div>
-
-      {/* 常用套餐 */}
-      <MealPresets todayEntries={todayEntries} onAdded={loadData} />
-
-      {/* 数据备份（紧凑） */}
-      <DataManager />
     </div>
   );
 }
