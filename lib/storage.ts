@@ -1,4 +1,4 @@
-import { DiaryEntry, ExerciseEntry, UserProfile, UserGoals, UserInventoryItem, UserAccount, MealType } from '@/types/nutrition';
+import { DiaryEntry, ExerciseEntry, UserProfile, UserGoals, UserInventoryItem, UserAccount, MealType, BodyMeasurement } from '@/types/nutrition';
 
 const STORAGE_KEYS = {
   DIARY: 'fitness_diary',
@@ -11,6 +11,7 @@ const STORAGE_KEYS = {
   USER_ID_COUNTER: 'fitness_user_id_counter',
   WEIGHT_RECORDS: 'fitness_weight_records',
   MEAL_PRESETS: 'fitness_meal_presets',
+  BODY_MEASUREMENTS: 'fitness_body_measurements',
 };
 
 /**
@@ -661,7 +662,7 @@ export function getConsecutiveDays(): number {
 
 // ==================== 复制昨日餐食 ====================
 
-export function copyYesterdayMeals(): number {
+export function copyYesterdayMeals(): { count: number; ids: string[] } {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayStr = yesterday.toISOString().split('T')[0];
@@ -669,10 +670,10 @@ export function copyYesterdayMeals(): number {
   const yesterdayEntries = getDiaryEntriesByDate(yesterdayStr);
   const todayEntries = getDiaryEntriesByDate(todayStr);
   const todayFoodIds = new Set(todayEntries.map(e => e.foodId + e.mealType));
-  let added = 0;
+  const addedIds: string[] = [];
   for (const entry of yesterdayEntries) {
     if (!todayFoodIds.has(entry.foodId + entry.mealType)) {
-      addDiaryEntry({
+      const newEntry = addDiaryEntry({
         date: todayStr,
         foodId: entry.foodId,
         foodName: entry.foodName,
@@ -680,10 +681,71 @@ export function copyYesterdayMeals(): number {
         nutrients: entry.nutrients,
         mealType: entry.mealType,
       });
-      added++;
+      addedIds.push(newEntry.id);
     }
   }
-  return added;
+  return { count: addedIds.length, ids: addedIds };
+}
+
+/**
+ * 批量删除饮食记录（用于撤回复制）
+ */
+export function deleteDiaryEntriesByIds(ids: string[]): number {
+  const entries = getAllDiaryEntries();
+  const idsSet = new Set(ids);
+  const filtered = entries.filter(e => !idsSet.has(e.id));
+  const deletedCount = entries.length - filtered.length;
+  localStorage.setItem(STORAGE_KEYS.DIARY, JSON.stringify(filtered));
+  return deletedCount;
+}
+
+// ==================== 身体维度操作 ====================
+
+export function getBodyMeasurements(): BodyMeasurement[] {
+  if (!isBrowser()) return [];
+  const data = localStorage.getItem(STORAGE_KEYS.BODY_MEASUREMENTS);
+  if (!data) return [];
+  try { return JSON.parse(data); } catch { return []; }
+}
+
+export function addBodyMeasurement(measurement: Omit<BodyMeasurement, 'id' | 'createdAt'>): BodyMeasurement {
+  const records = getBodyMeasurements();
+  const record: BodyMeasurement = {
+    ...measurement,
+    id: generateId(),
+    createdAt: Date.now(),
+  };
+  // 同一天只保留最新一条
+  const filtered = records.filter(r => r.date !== record.date);
+  filtered.push(record);
+  filtered.sort((a, b) => a.date.localeCompare(b.date));
+  localStorage.setItem(STORAGE_KEYS.BODY_MEASUREMENTS, JSON.stringify(filtered));
+  return record;
+}
+
+export function deleteBodyMeasurement(id: string): boolean {
+  const records = getBodyMeasurements();
+  const filtered = records.filter(r => r.id !== id);
+  if (filtered.length === records.length) return false;
+  localStorage.setItem(STORAGE_KEYS.BODY_MEASUREMENTS, JSON.stringify(filtered));
+  return true;
+}
+
+/** 连续测量维度的天数 */
+export function getMeasurementStreak(): number {
+  if (!isBrowser()) return 0;
+  const records = getBodyMeasurements();
+  if (records.length === 0) return 0;
+  const dates = new Set(records.map(r => r.date));
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    if (dates.has(dateStr)) { streak++; } else if (i > 0) { break; }
+  }
+  return streak;
 }
 
 // ==================== 周报数据 ====================

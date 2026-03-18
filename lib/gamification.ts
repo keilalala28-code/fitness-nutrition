@@ -1,11 +1,11 @@
-import { getAllExerciseEntries, getWeightRecords, getExerciseStreak } from './storage';
+import { getAllExerciseEntries, getWeightRecords, getExerciseStreak, getBodyMeasurements, getMeasurementStreak } from './storage';
 
 export interface Badge {
   id: string;
   name: string;
   icon: string;
   description: string;
-  category: 'exercise' | 'weight';
+  category: 'exercise' | 'weight' | 'measurement';
   condition: string;
 }
 
@@ -57,6 +57,13 @@ export const ALL_BADGES: Badge[] = [
   { id: 'lost_1kg', name: '轻盈启程', icon: '📉', description: '体重减少1kg', category: 'weight', condition: '累计减重≥1kg' },
   { id: 'lost_5kg', name: '蜕变勇士', icon: '🦋', description: '体重减少5kg', category: 'weight', condition: '累计减重≥5kg' },
   { id: 'bmi_normal', name: '黄金体重', icon: '⚖️', description: 'BMI达到正常范围', category: 'weight', condition: 'BMI在18.5-24之间' },
+  // Measurement badges (6)
+  { id: 'first_measurement', name: '量出新生', icon: '📐', description: '第一次记录身体维度', category: 'measurement', condition: '记录第1次维度数据' },
+  { id: 'measure_streak_7', name: '坚持一周', icon: '📆', description: '连续7天记录维度', category: 'measurement', condition: '连续记录维度7天' },
+  { id: 'measure_streak_30', name: '蜕变达人', icon: '🌈', description: '连续30天记录维度', category: 'measurement', condition: '连续记录维度30天' },
+  { id: 'waist_minus_2cm', name: '腰细一圈', icon: '🎀', description: '腰围减少2cm', category: 'measurement', condition: '腰围累计减少≥2cm' },
+  { id: 'waist_minus_5cm', name: '小蛮腰', icon: '💃', description: '腰围减少5cm', category: 'measurement', condition: '腰围累计减少≥5cm' },
+  { id: 'measure_multi_improve', name: '全面蜕变', icon: '✨', description: '3个以上维度同时减小', category: 'measurement', condition: '3项以上维度均有改善' },
 ];
 
 export const BLINDBOX_PRIZES: BlindboxPrize[] = [
@@ -179,7 +186,56 @@ export function checkAndAwardBadges(userHeightCm?: number): string[] {
     if (bmi >= 18.5 && bmi < 24 && awardBadge('bmi_normal')) newlyEarned.push('bmi_normal');
   }
 
+  // Measurement badges
+  const measurements = getBodyMeasurements();
+  const measureStreak = getMeasurementStreak();
+  if (measurements.length >= 1 && awardBadge('first_measurement')) newlyEarned.push('first_measurement');
+  if (measureStreak >= 7 && awardBadge('measure_streak_7')) newlyEarned.push('measure_streak_7');
+  if (measureStreak >= 30 && awardBadge('measure_streak_30')) newlyEarned.push('measure_streak_30');
+
+  if (measurements.length >= 2) {
+    const first = measurements[0];
+    const latest = measurements[measurements.length - 1];
+    // Waist reduction badges
+    if (first.waist && latest.waist) {
+      const waistLoss = first.waist - latest.waist;
+      if (waistLoss >= 2 && awardBadge('waist_minus_2cm')) newlyEarned.push('waist_minus_2cm');
+      if (waistLoss >= 5 && awardBadge('waist_minus_5cm')) newlyEarned.push('waist_minus_5cm');
+    }
+    // Multi-dimension improvement
+    const dimensions: Array<keyof typeof first> = ['chest', 'waist', 'hips', 'thigh', 'arm', 'calf'];
+    let improvedCount = 0;
+    for (const dim of dimensions) {
+      const f = first[dim] as number | undefined;
+      const l = latest[dim] as number | undefined;
+      if (f && l && f > l) improvedCount++;
+    }
+    if (improvedCount >= 3 && awardBadge('measure_multi_improve')) newlyEarned.push('measure_multi_improve');
+  }
+
   return newlyEarned;
+}
+
+// ====== Measurement reward points ======
+
+/** 记录一次维度后给予积分，若有改善则额外奖励 */
+export function awardMeasurementPoints(): number {
+  const measurements = getBodyMeasurements();
+  let points = 5; // 基础打卡积分
+  if (measurements.length >= 2) {
+    const prev = measurements[measurements.length - 2];
+    const cur = measurements[measurements.length - 1];
+    const dimensions: Array<keyof typeof prev> = ['chest', 'waist', 'hips', 'thigh', 'arm', 'calf'];
+    let improvedCount = 0;
+    for (const dim of dimensions) {
+      const p = prev[dim] as number | undefined;
+      const c = cur[dim] as number | undefined;
+      if (p && c && p > c) improvedCount++;
+    }
+    if (improvedCount > 0) points += improvedCount * 3; // 每改善一项+3分
+  }
+  addBlindboxPoints(points);
+  return points;
 }
 
 // ====== Blind box ======

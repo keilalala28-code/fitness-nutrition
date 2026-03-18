@@ -46,7 +46,8 @@ export type FoodCategory =
   | 'dimsum'       // 点心
   | 'noodle'       // 面食
   | 'soup'         // 汤类
-  | 'sauce';       // 调料
+  | 'sauce'        // 调料
+  | 'convenience'; // 便利店
 
 // 饮食记录
 export interface DiaryEntry {
@@ -74,14 +75,25 @@ export interface ExerciseEntry {
   createdAt: number;
 }
 
+// 运动可选参数
+export interface ExerciseParameter {
+  label: string;        // 显示名称
+  value: number;        // 实际值（如速度4、坡度5）
+  metModifier: number;  // MET修正值（绝对值或乘数）
+}
+
 // 运动项目
 export interface ExerciseItem {
   id: string;
   name: string;
   category: ExerciseCategory;
-  met: number;            // MET值
+  met: number;            // 基准MET值
   description: string;
   tags: string[];
+  // 可选参数（用于跑步机、划船机等可调节设备）
+  speedOptions?: ExerciseParameter[];    // 速度选项
+  inclineOptions?: ExerciseParameter[];  // 坡度选项
+  resistanceOptions?: ExerciseParameter[]; // 阻力选项
 }
 
 // 运动分类
@@ -245,6 +257,20 @@ export interface WeightRecord {
   id: string;
   date: string;        // YYYY-MM-DD
   weight: number;      // kg
+  note?: string;
+  createdAt: number;
+}
+
+// 身体维度记录
+export interface BodyMeasurement {
+  id: string;
+  date: string;        // YYYY-MM-DD
+  chest?: number;      // 胸围 cm
+  waist?: number;      // 腰围 cm
+  hips?: number;       // 臀围 cm
+  thigh?: number;      // 大腿围 cm（单侧）
+  arm?: number;        // 手臂围 cm（单侧）
+  calf?: number;       // 小腿围 cm（单侧）
   note?: string;
   createdAt: number;
 }

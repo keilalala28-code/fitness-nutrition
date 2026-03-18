@@ -5,6 +5,7 @@ import { DRINK_FOODS } from './foods-drinks';
 import { SNACK_FOODS } from './foods-snacks';
 import { BAKERY_FOODS } from './foods-bakery';
 import { HOMECOOKING_FOODS } from './foods-homecooking';
+import { CONVENIENCE_FOODS } from './foods-convenience';
 import foodsJson from '@/data/foods.json';
 
 // 从JSON加载额外的食物数据
@@ -60,6 +61,7 @@ export const ALL_FOODS: FoodItem[] = [
   ...DRINK_FOODS,
   ...SNACK_FOODS,
   ...BAKERY_FOODS,
+  ...CONVENIENCE_FOODS,
   ...JSON_FOODS,
 ];
 
@@ -87,6 +89,7 @@ export const CATEGORY_NAMES: Record<string, string> = {
   noodle: '面食',
   soup: '汤类',
   sauce: '调料',
+  convenience: '便利店',
 };
 
 /**
