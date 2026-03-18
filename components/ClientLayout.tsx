@@ -28,11 +28,13 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
 
             <div className="flex items-center gap-3">
               {!isMobile && (
-                <div className="flex gap-6">
-                  <Link href="/" className="text-gray-600 hover:text-primary-600 transition-colors text-sm">首页</Link>
-                  <Link href="/search" className="text-gray-600 hover:text-primary-600 transition-colors text-sm">搜索食物</Link>
-                  <Link href="/diary" className="text-gray-600 hover:text-primary-600 transition-colors text-sm">饮食日志</Link>
-                  <Link href="/calculator" className="text-gray-600 hover:text-primary-600 transition-colors text-sm">TDEE计算</Link>
+                <div className="flex gap-5">
+                  <Link href="/" className="text-gray-600 hover:text-primary-600 transition-colors text-sm">🏠 今日</Link>
+                  <Link href="/exercise" className="text-gray-600 hover:text-primary-600 transition-colors text-sm">🏃 运动</Link>
+                  <Link href="/weight" className="text-gray-600 hover:text-primary-600 transition-colors text-sm">⚖️ 体重</Link>
+                  <Link href="/me" className="text-gray-600 hover:text-primary-600 transition-colors text-sm">👤 我的</Link>
+                  <Link href="/diary" className="text-gray-600 hover:text-primary-600 transition-colors text-sm">📝 日志</Link>
+                  <Link href="/calculator" className="text-gray-600 hover:text-primary-600 transition-colors text-sm">📊 计算</Link>
                 </div>
               )}
 
