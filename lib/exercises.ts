@@ -1041,6 +1041,14 @@ export const EXERCISES: ExerciseItem[] = [
     description: '40分钟中文流行歌曲连跳，马年直播回放',
     tags: ['帕梅拉', 'Pamela', 'B站跟练', '中文歌', '有氧舞蹈', '中强度', '40分钟', '跟练', '长时间']
   },
+  {
+    id: 'bilibili-pamela-2000-steps',
+    name: '帕梅拉·2000步有氧（20分钟）',
+    category: 'cardio',
+    met: 5.5,
+    description: '20分钟低冲击踏步有氧，以2000步为目标，膝盖友好，适合在家跟练',
+    tags: ['帕梅拉', 'Pamela', 'B站跟练', '踏步有氧', '低冲击', '中强度', '20分钟', '跟练', '膝盖友好', '新手']
+  },
 
   // ==================== B站跟练 - Jo姐 (growwithjo) ====================
   {
