@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ExerciseRecommendation, UserProfile, ExerciseCategory } from '@/types/nutrition';
+import { ExerciseEntry, ExerciseRecommendation, UserProfile, ExerciseCategory } from '@/types/nutrition';
 import {
   getExerciseRecommendations,
   getRecommendationsByCategory,
@@ -11,7 +11,10 @@ import {
   getCurrentUserAccount,
   getTodayDateString,
   getTotalCaloriesBurnedByDate,
+  getExerciseEntriesByDate,
   addExerciseEntry,
+  deleteExerciseEntry,
+  getExerciseStreak,
 } from '@/lib/storage';
 import { useToast } from '@/components/Toast';
 
@@ -45,20 +48,27 @@ export default function DailyExercisePlan({ onExerciseAdded }: DailyExercisePlan
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [fitnessGoal, setFitnessGoal] = useState<string>('maintain');
   const [burned, setBurned] = useState(0);
+  const [todayExercises, setTodayExercises] = useState<ExerciseEntry[]>([]);
+  const [streak, setStreak] = useState(0);
   const [customTarget, setCustomTarget] = useState<number | null>(null);
   const [editingTarget, setEditingTarget] = useState(false);
   const [tempTarget, setTempTarget] = useState('');
   const [recommendations, setRecommendations] = useState<ExerciseRecommendation[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<ExerciseCategory | 'all'>('all');
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [justCheckedIn, setJustCheckedIn] = useState<string | null>(null);
+
+  const today = getTodayDateString();
 
   const loadData = useCallback(() => {
     const account = getCurrentUserAccount();
     const p = account?.profile || null;
     setProfile(p);
     if (account?.profile?.goal) setFitnessGoal(account.profile.goal);
-    setBurned(getTotalCaloriesBurnedByDate(getTodayDateString()));
-  }, []);
+    setBurned(getTotalCaloriesBurnedByDate(today));
+    setTodayExercises(getExerciseEntriesByDate(today));
+    setStreak(getExerciseStreak());
+  }, [today]);
 
   useEffect(() => {
     loadData();
@@ -79,26 +89,33 @@ export default function DailyExercisePlan({ onExerciseAdded }: DailyExercisePlan
   const target = customTarget ?? GOAL_DEFAULT_BURN[fitnessGoal] ?? 250;
   const progress = Math.min(100, Math.round((burned / target) * 100));
   const remaining = Math.max(0, target - burned);
+  const goalMet = burned >= target;
 
-  const handleAddExercise = (rec: ExerciseRecommendation) => {
+  // 今日已打卡的运动 ID 集合（用于推荐列表标记）
+  const checkedInIds = new Set(todayExercises.map(e => e.exerciseId));
+
+  const handleCheckIn = (rec: ExerciseRecommendation) => {
     if (!profile) return;
     setAddingId(rec.exercise.id);
-    const calories = calculateCaloriesBurned(
-      rec.exercise.met,
-      profile.weight,
-      rec.suggestedDuration
-    );
+    const calories = calculateCaloriesBurned(rec.exercise.met, profile.weight, rec.suggestedDuration);
     addExerciseEntry({
-      date: getTodayDateString(),
+      date: today,
       exerciseId: rec.exercise.id,
       exerciseName: rec.exercise.name,
       duration: rec.suggestedDuration,
       caloriesBurned: Math.round(calories),
     });
-    showToast(`已记录 ${rec.exercise.name} ${rec.suggestedDuration}分钟，消耗 ${Math.round(calories)} 卡`, 'success');
+    showToast(`✅ 打卡成功！${rec.exercise.name} ${rec.suggestedDuration}分钟，消耗 ${Math.round(calories)} 卡`, 'success');
+    setJustCheckedIn(rec.exercise.id);
+    setTimeout(() => { setAddingId(null); setJustCheckedIn(null); }, 1500);
     loadData();
     onExerciseAdded?.();
-    setTimeout(() => setAddingId(null), 800);
+  };
+
+  const handleDeleteExercise = (id: string) => {
+    deleteExerciseEntry(id);
+    loadData();
+    onExerciseAdded?.();
   };
 
   const handleSaveTarget = () => {
@@ -117,26 +134,35 @@ export default function DailyExercisePlan({ onExerciseAdded }: DailyExercisePlan
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-5 space-y-4">
-      {/* 标题 + 目标标签 */}
+      {/* 标题 + streak */}
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-          <span>🗓️</span> 今日运动计划
+          <span>🏃</span> 今日运动打卡
           <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
             {GOAL_LABELS[fitnessGoal]}
           </span>
         </h3>
+        {streak > 0 && (
+          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
+            streak >= 7 ? 'bg-orange-100 text-orange-600' : 'bg-amber-50 text-amber-600'
+          }`}>
+            🔥 {streak}天连续打卡
+          </div>
+        )}
       </div>
 
-      {/* 今日目标进度 */}
-      <div className="bg-orange-50 rounded-xl p-4">
+      {/* 今日消耗进度条 */}
+      <div className={`rounded-xl p-4 ${goalMet ? 'bg-green-50' : 'bg-orange-50'}`}>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-orange-800">今日消耗目标</span>
+          <span className={`text-sm font-medium ${goalMet ? 'text-green-800' : 'text-orange-800'}`}>
+            今日消耗目标
+          </span>
           {!editingTarget ? (
             <button
               onClick={() => { setTempTarget(String(target)); setEditingTarget(true); }}
-              className="text-xs text-orange-600 hover:text-orange-700 underline"
+              className={`text-xs underline ${goalMet ? 'text-green-600' : 'text-orange-600'}`}
             >
-              自定义目标
+              自定义
             </button>
           ) : (
             <div className="flex items-center gap-1">
@@ -145,63 +171,90 @@ export default function DailyExercisePlan({ onExerciseAdded }: DailyExercisePlan
                 value={tempTarget}
                 onChange={e => setTempTarget(e.target.value)}
                 className="w-16 text-xs border border-orange-300 rounded px-1.5 py-0.5 text-center focus:outline-none focus:ring-1 focus:ring-orange-400"
-                placeholder="卡"
                 autoFocus
               />
               <span className="text-xs text-orange-600">卡</span>
-              <button
-                onClick={handleSaveTarget}
-                className="text-xs bg-orange-500 text-white px-2 py-0.5 rounded hover:bg-orange-600"
-              >
-                确定
-              </button>
-              <button
-                onClick={() => setEditingTarget(false)}
-                className="text-xs text-gray-400 hover:text-gray-600"
-              >
-                取消
-              </button>
+              <button onClick={handleSaveTarget} className="text-xs bg-orange-500 text-white px-2 py-0.5 rounded">确定</button>
+              <button onClick={() => setEditingTarget(false)} className="text-xs text-gray-400">取消</button>
             </div>
           )}
         </div>
 
         <div className="flex items-end gap-2 mb-2">
-          <span className="text-3xl font-bold text-orange-600">{burned}</span>
-          <span className="text-sm text-orange-400 mb-1">/ {target} 卡</span>
-          {burned >= target && (
-            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full mb-1">✅ 已达标</span>
+          <span className={`text-3xl font-bold ${goalMet ? 'text-green-600' : 'text-orange-600'}`}>{burned}</span>
+          <span className={`text-sm mb-1 ${goalMet ? 'text-green-400' : 'text-orange-400'}`}>/ {target} 卡</span>
+          {goalMet && (
+            <span className="text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded-full mb-1 font-medium animate-pulse">
+              🎉 已达标
+            </span>
           )}
         </div>
 
-        <div className="w-full bg-orange-100 rounded-full h-2.5 mb-1">
+        <div className={`w-full rounded-full h-2.5 mb-1.5 ${goalMet ? 'bg-green-100' : 'bg-orange-100'}`}>
           <div
-            className={`h-2.5 rounded-full transition-all duration-500 ${burned >= target ? 'bg-green-500' : 'bg-orange-500'}`}
+            className={`h-2.5 rounded-full transition-all duration-700 ${goalMet ? 'bg-green-500' : 'bg-orange-500'}`}
             style={{ width: `${progress}%` }}
           />
         </div>
-
-        <div className="text-xs text-orange-600">
-          {burned >= target
-            ? '太棒了！今日运动目标已完成 🎉'
-            : `还差 ${remaining} 卡达标，继续加油！`}
+        <div className={`text-xs ${goalMet ? 'text-green-700' : 'text-orange-600'}`}>
+          {goalMet ? '今日运动目标已完成，继续保持！💪' : `还差 ${remaining} 卡达标，加油！`}
         </div>
       </div>
 
+      {/* 今日已打卡运动 */}
+      {todayExercises.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-medium text-gray-700">✅ 今日已打卡</span>
+            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{todayExercises.length} 项</span>
+          </div>
+          <div className="space-y-1.5">
+            {todayExercises.map(ex => (
+              <div
+                key={ex.id}
+                className="flex items-center justify-between bg-green-50 border border-green-100 rounded-lg px-3 py-2"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-green-500 text-sm">✓</span>
+                  <div>
+                    <span className="text-sm font-medium text-gray-800">{ex.exerciseName}</span>
+                    <span className="text-xs text-gray-400 ml-1.5">{ex.duration}分钟</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-orange-500">-{ex.caloriesBurned}卡</span>
+                  <button
+                    onClick={() => handleDeleteExercise(ex.id)}
+                    className="text-gray-300 hover:text-red-400 transition-colors text-xs"
+                    title="取消打卡"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 分类筛选 */}
-      <div className="flex gap-1.5 flex-wrap">
-        {CATEGORIES.map(cat => (
-          <button
-            key={cat.key}
-            onClick={() => setSelectedCategory(cat.key)}
-            className={`px-3 py-1 text-xs rounded-full transition-colors ${
-              selectedCategory === cat.key
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
+      <div>
+        <p className="text-xs text-gray-400 mb-2">推荐运动 · 点击打卡即记入今日消耗</p>
+        <div className="flex gap-1.5 flex-wrap">
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat.key}
+              onClick={() => setSelectedCategory(cat.key)}
+              className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                selectedCategory === cat.key
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 推荐运动列表 */}
@@ -214,30 +267,42 @@ export default function DailyExercisePlan({ onExerciseAdded }: DailyExercisePlan
               ? Math.round(calculateCaloriesBurned(rec.exercise.met, profile.weight, rec.suggestedDuration))
               : rec.estimatedCalories;
             const isAdding = addingId === rec.exercise.id;
+            const isJustCheckedIn = justCheckedIn === rec.exercise.id;
+            const alreadyDone = checkedInIds.has(rec.exercise.id);
+
             return (
               <div
                 key={rec.exercise.id}
-                className="flex items-center justify-between border border-gray-100 rounded-lg px-3 py-2.5 hover:border-primary-100 hover:bg-primary-50/30 transition-colors"
+                className={`flex items-center justify-between rounded-lg px-3 py-2.5 border transition-all ${
+                  alreadyDone
+                    ? 'bg-green-50 border-green-100'
+                    : 'border-gray-100 hover:border-primary-100 hover:bg-primary-50/30'
+                }`}
               >
                 <div className="flex-1 min-w-0 mr-3">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm text-gray-800">{rec.exercise.name}</span>
+                    {alreadyDone && <span className="text-green-500 text-sm">✓</span>}
+                    <span className={`font-medium text-sm ${alreadyDone ? 'text-green-700' : 'text-gray-800'}`}>
+                      {rec.exercise.name}
+                    </span>
                     <span className="text-xs text-gray-400">{rec.suggestedDuration}分钟</span>
                   </div>
                   <p className="text-xs text-gray-400 truncate mt-0.5">{rec.reason}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-sm font-medium text-orange-600">-{cal}卡</span>
+                  <span className="text-sm font-medium text-orange-500">-{cal}卡</span>
                   <button
-                    onClick={() => handleAddExercise(rec)}
+                    onClick={() => handleCheckIn(rec)}
                     disabled={isAdding}
-                    className={`text-xs px-2.5 py-1 rounded-lg transition-colors ${
-                      isAdding
-                        ? 'bg-green-100 text-green-600'
+                    className={`text-xs px-3 py-1.5 rounded-lg transition-all font-medium ${
+                      isJustCheckedIn
+                        ? 'bg-green-500 text-white scale-95'
+                        : alreadyDone
+                        ? 'bg-green-100 text-green-600 hover:bg-green-200'
                         : 'bg-primary-600 text-white hover:bg-primary-700'
                     }`}
                   >
-                    {isAdding ? '✓ 已记录' : '+ 记录'}
+                    {isJustCheckedIn ? '✓ 打卡！' : alreadyDone ? '再来一次' : '打卡'}
                   </button>
                 </div>
               </div>
@@ -245,8 +310,6 @@ export default function DailyExercisePlan({ onExerciseAdded }: DailyExercisePlan
           })}
         </div>
       )}
-
-      <p className="text-xs text-gray-400 text-center">根据您的{GOAL_LABELS[fitnessGoal]}目标和体重智能推荐 · 点击记录即刻计入今日消耗</p>
     </div>
   );
 }

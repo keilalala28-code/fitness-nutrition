@@ -19,14 +19,12 @@ import MealPresets from '@/components/MealPresets';
 import WeeklyReport from '@/components/WeeklyReport';
 import { useToast } from '@/components/Toast';
 import { useMode } from '@/components/ModeContext';
-import { UserGoals, NutrientData, DiaryEntry, ExerciseEntry, MealType, UserAccount } from '@/types/nutrition';
+import { UserGoals, NutrientData, DiaryEntry, MealType, UserAccount } from '@/types/nutrition';
 import {
   getUserGoals,
   getDiaryEntriesByDate,
-  getExerciseEntriesByDate,
   getTodayDateString,
   deleteDiaryEntry,
-  deleteExerciseEntry,
   getTotalCaloriesBurnedByDate,
   getCurrentUserAccount,
   getAllUserAccounts,
@@ -43,7 +41,7 @@ const MEAL_LABELS: Record<MealType, string> = {
 
 interface PendingDelete {
   id: string;
-  type: 'food' | 'exercise';
+  type: 'food';
   message: string;
 }
 
@@ -57,7 +55,6 @@ export default function Home() {
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [goals, setGoals] = useState<UserGoals | null>(null);
   const [todayEntries, setTodayEntries] = useState<DiaryEntry[]>([]);
-  const [todayExercises, setTodayExercises] = useState<ExerciseEntry[]>([]);
   const [consumed, setConsumed] = useState<NutrientData>({ calories: 0, protein: 0, carbs: 0, fat: 0 });
   const [burned, setBurned] = useState(0);
   const [activeTab, setActiveTab] = useState<'food' | 'exercise'>('food');
@@ -74,7 +71,6 @@ export default function Home() {
 
     const entries = getDiaryEntriesByDate(getTodayDateString());
     setTodayEntries(entries);
-    setTodayExercises(getExerciseEntriesByDate(getTodayDateString()));
 
     if (entries.length > 0) {
       const total = entries.reduce(
@@ -110,19 +106,10 @@ export default function Home() {
     setPendingDelete({ id, type: 'food', message: '确定要删除这条饮食记录吗？' });
   };
 
-  const handleDeleteExercise = (id: string) => {
-    setPendingDelete({ id, type: 'exercise', message: '确定要删除这条运动记录吗？' });
-  };
-
   const handleConfirmDelete = () => {
     if (!pendingDelete) return;
-    if (pendingDelete.type === 'food') {
-      deleteDiaryEntry(pendingDelete.id);
-      showToast('饮食记录已删除', 'success');
-    } else {
-      deleteExerciseEntry(pendingDelete.id);
-      showToast('运动记录已删除', 'success');
-    }
+    deleteDiaryEntry(pendingDelete.id);
+    showToast('饮食记录已删除', 'success');
     setPendingDelete(null);
     loadData();
   };
@@ -186,37 +173,7 @@ export default function Home() {
 
       {/* 今日营养目标进度 */}
       {goals ? (
-        <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
-          <div className={isMobile ? '' : 'lg:col-span-2'}>
-            <DailyProgress consumed={consumed} goals={goals} />
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <span>🔥</span> 今日运动消耗
-            </h3>
-            <div className="text-3xl font-bold text-orange-600 mb-1">
-              {burned} <span className="text-base font-normal text-gray-500">kcal</span>
-            </div>
-            <div className="text-sm text-gray-500 mb-3">
-              净摄入：<span className="font-medium text-gray-700">{consumed.calories - burned}</span> kcal
-            </div>
-            {todayExercises.length > 0 ? (
-              <div className="space-y-2">
-                {todayExercises.map(ex => (
-                  <div key={ex.id} className="flex justify-between items-center text-sm bg-orange-50 rounded-lg p-2">
-                    <span className="text-gray-700">{ex.exerciseName}（{ex.duration}分钟）</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-orange-600 font-medium">-{ex.caloriesBurned}</span>
-                      <button onClick={() => handleDeleteExercise(ex.id)} className="text-gray-300 hover:text-red-500 transition-colors">✕</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-400">今天还没有运动记录</p>
-            )}
-          </div>
-        </div>
+        <DailyProgress consumed={consumed} goals={goals} />
       ) : (
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 text-center">
           <p className="text-yellow-800 mb-3 text-sm">设置营养目标后，这里会显示今日进度</p>
@@ -321,8 +278,11 @@ export default function Home() {
         )}
       </div>
 
-      {/* 今日运动计划 */}
+      {/* 今日运动打卡 */}
       <DailyExercisePlan onExerciseAdded={loadData} />
+
+      {/* 体重记录 */}
+      <WeightTracker />
 
       {/* 本周报告 */}
       {goals && <WeeklyReport goals={goals} />}
@@ -364,9 +324,6 @@ export default function Home() {
           </div>
         )}
       </div>
-
-      {/* 体重追踪 */}
-      <WeightTracker />
 
       {/* 常用套餐 */}
       <MealPresets todayEntries={todayEntries} onAdded={loadData} />

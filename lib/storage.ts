@@ -615,6 +615,28 @@ export function deleteMealPreset(id: string): boolean {
   return true;
 }
 
+// ==================== 连续运动打卡天数 ====================
+
+export function getExerciseStreak(): number {
+  if (!isBrowser()) return 0;
+  const allExercises = getAllExerciseEntries();
+  if (allExercises.length === 0) return 0;
+  const exerciseDates = new Set(allExercises.map(e => e.date));
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    if (exerciseDates.has(dateStr)) {
+      streak++;
+    } else if (i > 0) {
+      break;
+    }
+  }
+  return streak;
+}
+
 // ==================== 连续打卡天数 ====================
 
 export function getConsecutiveDays(): number {
