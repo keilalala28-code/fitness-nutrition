@@ -18,6 +18,7 @@ import {
 } from '@/lib/storage';
 import { useToast } from '@/components/Toast';
 import { checkAndAwardBadges, addBlindboxPoints, ALL_BADGES } from '@/lib/gamification';
+import ExerciseSearch from '@/components/ExerciseSearch';
 
 const GOAL_LABELS: Record<string, string> = {
   lose: '🔥 减脂',
@@ -58,6 +59,7 @@ export default function DailyExercisePlan({ onExerciseAdded }: DailyExercisePlan
   const [selectedCategory, setSelectedCategory] = useState<ExerciseCategory | 'all'>('all');
   const [addingId, setAddingId] = useState<string | null>(null);
   const [justCheckedIn, setJustCheckedIn] = useState<string | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
 
   const today = getTodayDateString();
 
@@ -317,6 +319,22 @@ export default function DailyExercisePlan({ onExerciseAdded }: DailyExercisePlan
           })}
         </div>
       )}
+
+      {/* 搜索其他运动 */}
+      <div className="border-t border-gray-100 pt-3">
+        <button
+          onClick={() => setShowSearch(!showSearch)}
+          className="w-full flex items-center justify-center gap-1.5 text-sm text-gray-400 hover:text-primary-600 transition-colors py-1"
+        >
+          <span>{showSearch ? '▲' : '🔍'}</span>
+          <span>{showSearch ? '收起搜索' : '搜索其他运动'}</span>
+        </button>
+        {showSearch && (
+          <div className="mt-3">
+            <ExerciseSearch onExerciseAdded={() => { loadData(); onExerciseAdded?.(); }} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
